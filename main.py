@@ -1,5 +1,3 @@
-import io
-
 import msprime
 import numpy as np 
 import tskit
@@ -23,24 +21,16 @@ assert all([l == r for l, r in zip(combinations_with_replacement(range(100), 2),
 
 
 def get_state(ts):
-    # if polarized:
-    #     state = np.ones((ts.num_sites, ts.num_samples), dtype=int)
-    # else:
     state = np.zeros((ts.num_sites, ts.num_samples), dtype=int)
     num_states = np.zeros(ts.num_sites, dtype=int)
     for tree in ts.trees():
         for site in tree.sites():
-            # current_state = 1 if polarized else 0  #TODO: FIX THIS!!!
             current_state = 0
             for mutation in site.mutations:
-                # if we haven't encountered this allele before, otherwise current_state = index_of_allele
+                # TODO: if we haven't encountered this allele before, otherwise current_state = index_of_allele
                 current_state += 1
                 for sample_id in tree.samples(mutation.node):
                     state[site.id, sample_id] = current_state
-                # for mutation_node_id in tree.nodes(mutation.node):
-                #     node = ts.node(mutation_node_id)
-                #     if node.is_sample():
-                #         state[site.id, node.id] = current_state
             num_states[site.id] = current_state
     return num_states, state
 
@@ -85,10 +75,8 @@ def compute_r2(w_AB, w_Ab, w_aB, n):
 
     # D = (p_AB * p_ab) - (p_Ab * p_aB)
 
-    import ipdb; ipdb.set_trace()
     denom = p_A * p_B * (1 - p_A) * (1 - p_B)
 
-    import ipdb; ipdb.set_trace()
     if denom == 0 and D == 0:
         return np.nan
     else:
