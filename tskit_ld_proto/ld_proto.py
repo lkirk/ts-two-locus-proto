@@ -150,21 +150,18 @@ def compute_r2(w_AB, w_Ab, w_aB, n):
     p_AB = w_AB / float(n)
     p_Ab = w_Ab / float(n)
     p_aB = w_aB / float(n)
-    p_ab = 1 - p_AB
 
     p_A = p_AB + p_Ab
     p_B = p_AB + p_aB
 
     D = p_AB - (p_A * p_B)
-
-    # D = (p_AB * p_ab) - (p_Ab * p_aB)
-
     denom = p_A * p_B * (1 - p_A) * (1 - p_B)
 
     if denom == 0 and D == 0:
         return np.nan
     else:
         return (D * D) / denom
+
 
 def compute_stat_matrix(ts, summary_func):
     num_states, state = get_state(ts)
