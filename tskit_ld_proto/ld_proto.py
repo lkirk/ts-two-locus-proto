@@ -72,6 +72,12 @@ def leave_out_wraparound(n, skip_idx):
     [3, 4, 0, 1]
     >>> list(leave_out_wraparound(0, 0))
     []
+    >>> list(leave_out_wraparound(1, 0))
+    []
+    >>> list(leave_out_wraparound(2, 0))
+    [1]
+    >>> list(leave_out_wraparound(2, 1))
+    [0]
 
     :param n: length of iterable to iterate over
     :param skip_idx: index to skip when looping
