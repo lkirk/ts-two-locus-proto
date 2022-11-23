@@ -126,15 +126,6 @@ def get_allele_weights(state, num_states):
 #     return p_AB * p_ab - p_Ab * p_aB
 
 
-# TODO: why wrong?
-# def compute_D(w_AB, w_Ab, w_aB, n):
-#     p_AB = w_AB / float(n)
-#     p_Ab = w_Ab / float(n)
-#     p_aB = w_aB / float(n)
-#     p_ab = 1 - p_AB
-#     return p_AB * p_ab - p_Ab * p_aB
-
-
 def compute_D(w_AB, w_Ab, w_aB, n):
     p_AB = w_AB / float(n)
     p_Ab = w_Ab / float(n)
