@@ -74,8 +74,11 @@ def pairs_with_replacement_idx(num):
         s += 1
 
 
-from itertools import combinations_with_replacement
-assert all([l == r for l, r in zip(combinations_with_replacement(range(100), 2), pairs_with_replacement_idx(100))]), 'test fails'
+def test_pairs_with_replacement_idx():
+    from itertools import combinations_with_replacement
+    assert all([l == r for l, r in zip(combinations_with_replacement(range(100), 2), pairs_with_replacement_idx(100))]), 'test fails'
+
+test_pairs_with_replacement_idx()
 
 
 def get_state(ts):
@@ -94,13 +97,15 @@ def get_state(ts):
 
 
 def get_allele_weights(state, num_states):
-    for (A_site_idx, A_samples), (B_site_idx, B_samples) in list(combinations_with_replacement(enumerate(state), 2)):
-        # print(f'{A_site_idx},{B_site_idx},{A_samples},{B_samples}')
+    for A_site_idx, B_site_idx in pairs_with_replacement_idx(len(state)):
+        # print(f'{A_site_idx},{B_site_idx},{A_samples},{B_sample_state}')
+        A_sample_state = state[A_site_idx]
+        B_sample_state = state[B_site_idx]
         A_dim = num_states[A_site_idx]
         B_dim = num_states[B_site_idx]
 
         haplotype_counts = np.zeros((A_dim + 1, B_dim + 1), dtype=int)
-        for A_state, B_state in zip(A_samples, B_samples):
+        for A_state, B_state in zip(A_sample_state, B_sample_state):
             haplotype_counts[A_state, B_state] += 1
 
         # print(haplotype_counts)
