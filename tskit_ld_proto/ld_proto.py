@@ -142,6 +142,9 @@ def get_allele_weights(state, num_states):
         A_dim = num_states[A_site_idx]
         B_dim = num_states[B_site_idx]
 
+        # APR: I think this may be making one extra row and column than what is needed.
+        # do we want: haplotype_counts = np.zeros((A_dim, B_dim), dtype=int)
+        # and also remove the "+ 1" in leave_out_wraparound(...)?
         haplotype_counts = np.zeros((A_dim + 1, B_dim + 1), dtype=int)
         for A_state, B_state in zip(A_sample_state, B_sample_state):
             haplotype_counts[A_state, B_state] += 1
