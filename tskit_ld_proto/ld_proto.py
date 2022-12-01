@@ -94,8 +94,9 @@ def pairs_with_replacement_idx(n):
     >>> from itertools import combinations_with_replacement
     >>> list(pairs_with_replacement_idx(100)) == list(combinations_with_replacement(range(100), 2))
     True
-    >>> list(combinations_with_replacement(range(3), 2))
+    >>> list(pairs_with_replacement_idx(3))
     [(0, 0), (0, 1), (0, 2), (1, 1), (1, 2), (2, 2)]
+
     """
     subloop_start = 0
     for i in range(n):
@@ -105,6 +106,10 @@ def pairs_with_replacement_idx(n):
 
 
 def get_state(ts):
+    """
+    :param ts: tree sequence object
+
+    """
     state = np.zeros((ts.num_sites, ts.num_samples), dtype=int)
     num_states = np.zeros(ts.num_sites, dtype=int)
     for tree in ts.trees():
@@ -132,7 +137,6 @@ def get_allele_weights(state, num_states):
      (1, 1, (3, 0, 0)),
      (1, 2, (0, 3, 1)),
      (2, 2, (1, 0, 0))]
-
 
     """
     for A_site_idx, B_site_idx in pairs_with_replacement_idx(len(state)):
