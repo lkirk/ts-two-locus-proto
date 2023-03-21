@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+FILE="$1"
+
+while true; do
+    fswatch --one-event "$FILE" \
+        | sort -u \
+	| xargs -n1 sh -c "(pdflatex -shell-escape $FILE && bibtex $(basename $FILE .tex) && pdflatex -shell-escape $FILE && pdflatex -shell-escape $FILE)|| true"
+done

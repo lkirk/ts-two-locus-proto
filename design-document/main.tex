@@ -1,0 +1,287 @@
+\documentclass[12pt]{article}
+
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage[bb=dsserif]{mathalpha}
+\usepackage{svg}
+\usepackage{relsize}
+
+
+\title{Two Locus General Statistics in tskit}
+\author{Lloyd Kirk}
+
+\begin{document}
+
+\maketitle
+
+\section{Background}
+
+The intention of this document is to describe the changes to tskit to provide a
+generalized framework for computing two-locus statistics for branches and sites.
+
+Much of the design proposal is taken from this
+\href{https://github.com/tskit-dev/tskit/pull/432}{PR} There has been a bit of
+discussion \href{https://github.com/tskit-dev/tskit/issues/1900}{here} as well.
+
+\section{Goal/Scope}
+
+Ultimately, we intend to deprecate the LD calculator that is currently
+implemented in tskit and implement a general framework for two-locus
+statistics. This framework will create an interface for implementing new summary
+statistics and implement the following features:
+
+\begin{itemize}
+  \item Sites with more than 1 mutation (multiallelic sites)
+  \item Polarization, where applicable
+  \item Branch Statistics
+  \item LD Stats beyond $r^{2}$
+\end{itemize}
+
+\section{Implementation}
+We have been trying to follow the general design pattern laid out in the C
+api. Most of the initial design documentation will revolve around creating the
+necessary C interfaces to consume from the python api.
+
+Some of this documentation is based on my (LK’s) interpretation of the design
+patterns in the existing code. I have no insight into how things might change
+apart from the scattered TODOs in the code. In short, please feel free to
+correct my assumptions/understandings.
+
+\subsection{Outer Layer}
+
+We propose to add more functionality to
+\mintinline{C}{tsk_treeseq_general_stat}, which is the main entrypoint for
+computing stats from tree sequences. Within
+\mintinline{C}{tsk_treeseq_general_stat}, we will add some more conditionals in
+the form of \mintinline{C}{tsk_flags_t}.
+
+\begin{minted}{c}
+  bool stat_two_site = !!(options & TSK_STAT_TWO_SITE);
+  bool stat_branch = !!(options & TSK_STAT_BRANCH);
+\end{minted}
+
+These flags would dispatch our entrypoints for computing two site/branch statistics.
+
+
+\begin{minted}{c}
+static int
+tsk_treeseq_two_branch_general_stat(
+	const tsk_treeseq_t *self,
+	tsk_size_t state_dim,
+	const double *sample_weights,
+	tsk_size_t result_dim,
+	general_stat_func_t *f,
+	void *f_params,
+	tsk_size_t num_windows,
+	const double *windows,
+	tsk_flags_t options,
+	double *result
+)
+\end{minted}
+
+
+\section{Two Site Statistics}
+
+We would provide a similar interface to computing
+\mintinline{C}{site_general_stats}, but the tree traversal algorithm will
+differ, providing haplotype counts instead of site counts.
+
+\begin{minted}{c}
+static int
+tsk_treeseq_two_site_general_stat(
+	const tsk_treeseq_t *self,
+	tsk_size_t state_dim,
+	const double *sample_weights,
+	tsk_size_t result_dim,
+	general_stat_func_t *f,
+	void *f_params,
+	tsk_size_t num_windows,
+	const double *windows,
+	tsk_flags_t options,
+	double *result
+)
+\end{minted}
+
+\begin{minted}{c}
+static int
+compute_general_two_stat_site_result(
+	tsk_site_t *site_a,
+	tsk_site_t *site_b,
+	double *state,
+	tsk_size_t state_dim,
+	tsk_size_t result_dim,
+	general_stat_func_t *f,
+	void *f_params,
+	double *total_weight,
+	bool polarised,
+	double *result,
+)
+\end{minted}
+
+\section{Branch Statistics}
+
+\section{Summary Functions}
+
+\begin{tabular}{llll} Statistic & Polarization & Normalization & Equation\\
+
+\hline $D$ & Polarized & Total & $D = f_{ab} - f_{a}f_{b}$ \\
+
+$D^{\prime}$ &
+Polarized & Haplotype Weighted & $D^{\prime} = \frac{D}{D_{max}}$ \\
+
+$D^{2}$ &
+Unpolarized & Total & $D^{2} = D^{2}$ \\
+
+$D_{z}$ & Unpolarized & Total & $D_{z}
+= D (1 - 2 f_{a})(1-2f_{b})$ \\
+
+$\pi_{2}$ & Unpolarized & Total & $\pi_{2} =
+f_{a}f_{b}(1-f_{a})(1-f_{b})$ \\
+
+$r$ & Polarized & Haplotype Weighted & $r =
+\frac{D}{\sqrt{f_{a}f_{b}(1-f_{a})(1-f_{b})}}$ \\
+
+$r^{2}$ & Unpolarized &
+Haplotype Weighted & $r^{2} = \frac{D^{2}}{f_{a}f_{b}(1-f_{a})(1-f_{b})}$ \\
+\end{tabular}
+\\ 
+\\
+Where $D_{max}$ is defined as:
+
+\[
+  D_{max} = 
+  \begin{cases}
+    \min\{f_{a}(1-f_{b}),f_{b}(1-f_{b})\} & \text{if~}D>=0 \\
+    \min\{f_{a}f_{b},(1-f_{b})(1-f_{b})\} & \text{otherwise}
+  \end{cases}
+\]
+
+\subsection{Summary Function Signature}
+Two locus statistics need to know the number of AB, Ab, and aB haplotypes. They
+also need to know the total number of haplotypes being considered in order to
+properly convert the counts of each haplotype to proportions.
+\begin{minted}{c}
+static int
+summary_func(int w_AB, int w_Ab, int w_aB, int n)
+\end{minted}
+
+\begin{minted}{c}
+two_site_summary_func(
+	tsk_size_t state_dim,
+	const double *state,
+	tsk_size_t TSK_UNUSED(result_dim),
+	double *result,
+	void *params
+)
+\end{minted}
+
+\subsection{Normalization}
+In our testing of summary functions, we found that the appropriate normalization
+procedure can vary depending on the summary function. We've settled on two
+normalization procedures: ``Haplotype Weighted'' and ``Total''.
+
+\subsubsection{Hapltype Weighted}
+\[
+  \sum_{i=1}^{n}\sum_{j=1}^{m}p(A_{i}B_{j})F_{ij}
+\]
+where $F$ is the summary function and $p(A_{i}B_{j})$ is the frequency of
+haplotype $A_{i}B_{j}$. This method can be found
+in~\cite{zhao2007evaluation}. We apply this 
+\subsubsection{Total}
+In the ``Total'' normalization method, we simply divide by the number of
+haplotypes that we've visited. If we're
+\[
+  \frac{1}{(n-\mathbb{1}_{p}) (m-\mathbb{1}_{p})}\sum_{i=1}^{n}\sum_{j=1}^{m}F_{ij}
+\]
+where $\mathbb{1}_{p}$ is an indicator function conditioned on whether or not
+our statistic is polarized.
+
+\subsection{Evaluation}
+To ensure the correctness of our implementation, we have devised a number of
+test scenarios that will produce data at the theoretical limits of the
+statistics we've implemented.
+
+\subsubsection{Test cases}
+Table
+
+\begin{table}
+  \begin{tabular}{lc} Name & $\left(\begin{array}{cc} Site A \\ Site B
+                                     \\ \end{array}\right)$ \\
+
+    \hline
+    Correlated & $\left(\begin{array}{ccccccccc}
+                          0 & 1 & 1 & 0 & 2 & 2 & 1 & 0 & 1 \\
+                          1 & 2 & 2 & 1 & 0 & 0 & 2 & 1 & 2 \\
+                        \end{array}\right)$ \\
+    Uncorrelated & $\left(\begin{array}{ccccccccc}
+                            0 & 0 & 0 & 1 & 1 & 1 & 2 & 2 & 2 \\
+                            0 & 1 & 2 & 0 & 1 & 2 & 0 & 1 & 2 \\
+                          \end{array}\right)$ \\
+    Correlated Biallelic & $\left(\begin{array}{cccccccc}
+                                    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+                                    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+                                  \end{array}\right)$ \\
+    Uncorrelated Biallelic & $\left(\begin{array}{cccccccc}
+                                      0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+                                      1 & 1 & 0 & 0 & 0 & 0 & 1 & 1 \\
+                                    \end{array}\right)$ \\
+    Repulsion Biallelic & $\left(\begin{array}{cccccccc}
+                                   0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+                                   1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+                                 \end{array}\right)$ \\
+  \end{tabular}
+  \caption{
+    \textbf{Test cases for validating statistics.}
+    In each case, we have an A and B site, representing the two sites under
+    consideration for computaiton of our statistics.
+  }
+  \label{table:test_cases}
+\end{table}
+
+\subsubsection{Polarized}
+We'll begin with the polarized statistics. $D$ and $D^{\prime}$ sum to zero when
+they are unpolarized, so we are only providing a polarized method to compute
+them. We can test the correctness of $D$ by computing $D$ with two alleles that
+are in full repulsion:
+
+\[
+\]
+
+\subsubsection{Notation}
+
+In the following section, we use pairs of 1-d row vectors to describe the
+terminal allelic state in a given pair of trees. For example, if we're given a
+tree like the one shown in Figure~\ref{fig:example_tree}.
+
+\begin{figure}
+    \centering
+    % \includesvg[width=\textwidth]{figure1.svg}
+    % \includesvg[width=\linewidth,inkscapelatex=false,pretex=\relscale{0.4}]{figure1.svg}
+    \includesvg[width=\linewidth,inkscapelatex=false]{figure1.svg}
+    \caption{
+      \textbf{An example of a tree sequence used to compute two-locus statistics.}
+      The left tree has one site with four states and the right tree has one
+      site with three states.
+    }
+\label{fig:example_tree}
+\end{figure}
+
+In this example, the state matrix is a 2$\times$8 matrix, representing the
+terminal state of each sample in the tree. For Figure~\ref{fig:example_tree},
+our state matrix looks like:
+
+\[
+  \left(
+    \begin{array}{cccccccc}
+      2 & 2 & 3 & 3 & 1 & 1 & 1 & 1 \\
+      1 & 1 & 1 & 1 & 2 & 2 & 2 & 0 \\
+    \end{array}
+  \right)
+\]
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
