@@ -113,7 +113,7 @@ replacement)} \\
 
 Using this strategy, we will end up with memory scaling of $\mathcal{O}(n \times
 m)$, where $n$ is the number of edges in the tree sequence and $m$ is the number
-of trees. The computational complexity should be roughly $\mathcal{O}(\binom{m}{2})$
+of trees. The computational complexity should be roughly $\mathcal{O}({m}^{2})$
 where $m$ is the number of sites.
 
 \paragraph{Option 2 (CPU intensive)}
@@ -151,10 +151,10 @@ where $m$ is the number of sites.
   }
 \end{algorithm}
 
-In this approach, we end up with memory scaling of $\mathcal{O}(2 \times n)$,
-where $n$ is the number of edges in a given tree. The computational scaling of
-this approach is roughly $\mathcal{O}(\binom{m}{2} \times \binom{n}{2})$ where
-$m$ is the number of sites and $n$ is the number of trees.
+In this approach, we end up with memory scaling of $\mathcal{O}(n)$, where $n$
+is the number of edges in a given tree. The computational scaling of this
+approach is roughly $\mathcal{O}({m}^{2} \times {n}^{2})$ where $m$ is
+the number of sites and $n$ is the number of trees.
 
 Without profiling, I am not sure how these approaches behave under different
 topologies, but I would lean towards \textbf{Option 1} unless there are strict
