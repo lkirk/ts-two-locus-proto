@@ -1,64 +1,244 @@
-import io
+"""
+Prototype functionality for computing two-locus statistics in tskit
+
+To test the functionality, here's some examples:
+
+>>> from tskit_ld_proto.summary_functions import D, r2, r, D_prime, Dz, pi2
+
+>>> correlated = (np.array([[0, 1, 1, 0, 2, 2, 1, 0, 1], [1, 2, 2, 1, 0, 0, 2, 1, 2]]), np.array([3, 3]))
+>>> correlated_biallelic = (np.array([[0, 0, 0, 0, 1, 1, 1, 1], [0, 0, 0, 0, 1, 1, 1, 1]]), np.array([2, 2]))
+>>> uncorrelated = (np.array([[0, 0, 0, 1, 1, 1, 2, 2, 2], [0, 1, 2, 0, 1, 2, 0, 1, 2]]), np.array([3, 3]))
+>>> uncorrelated_biallelic = (np.array([[0, 0, 0, 0, 1, 1, 1, 1], [1, 1, 0, 0, 0, 0, 1, 1]]), np.array([2, 2]))
+>>> repulsion_biallelic = (np.array([[0, 0, 0, 0, 1, 1, 1, 1], [1, 1, 1, 1, 0, 0, 0, 0]]), np.array([2, 2]))
+
+>>> _two_site_general_stat(*correlated, D, total, polarized=True)
+[[ 0.05555556 -0.01851852]
+ [-0.01851852  0.04320988]]
+>>> _two_site_general_stat(*correlated_biallelic, D, total, polarized=True)
+[[0.25 0.25]
+ [0.25 0.25]]
+>>> _two_site_general_stat(*uncorrelated, D, total, polarized=True)
+[[0.05555556 0.        ]
+ [0.         0.05555556]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, D, total, polarized=True)
+[[0.25 0.  ]
+ [0.   0.25]]
+>>> _two_site_general_stat(*repulsion_biallelic, D, total, polarized=True)
+[[ 0.25 -0.25]
+ [-0.25  0.25]]
+
+>>> _two_site_general_stat(*correlated, D, total, polarized=False)
+[[0. 0.]
+ [0. 0.]]
+>>> _two_site_general_stat(*correlated_biallelic, D, total, polarized=False)
+[[0. 0.]
+ [0. 0.]]
+>>> _two_site_general_stat(*uncorrelated, D, total, polarized=False)
+[[0. 0.]
+ [0. 0.]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, D, total, polarized=False)
+[[0. 0.]
+ [0. 0.]]
+>>> _two_site_general_stat(*repulsion_biallelic, D, total, polarized=False)
+[[0. 0.]
+ [0. 0.]]
+
+>>> _two_site_general_stat(*correlated, D_prime, hap_weighted, polarized=True)
+[[0.66666667 0.44444444]
+ [0.44444444 0.77777778]]
+>>> _two_site_general_stat(*correlated_biallelic, D_prime, hap_weighted, polarized=True)
+[[0.5 0.5]
+ [0.5 0.5]]
+>>> _two_site_general_stat(*uncorrelated, D_prime, hap_weighted, polarized=True)
+[[0.66666667 0.        ]
+ [0.         0.66666667]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, D_prime, hap_weighted, polarized=True)
+[[0.5 0. ]
+ [0.  0.5]]
+>>> _two_site_general_stat(*repulsion_biallelic, D_prime, hap_weighted, polarized=True)
+[[0.5 0. ]
+ [0.  0.5]]
+
+>>> _two_site_general_stat(*correlated, D_prime, hap_weighted, polarized=False)
+[[1. 1.]
+ [1. 1.]]
+>>> _two_site_general_stat(*correlated_biallelic, D_prime, hap_weighted, polarized=False)
+[[1. 1.]
+ [1. 1.]]
+>>> _two_site_general_stat(*uncorrelated, D_prime, hap_weighted, polarized=False)
+[[1. 0.]
+ [0. 1.]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, D_prime, hap_weighted, polarized=False)
+[[1. 0.]
+ [0. 1.]]
+>>> _two_site_general_stat(*repulsion_biallelic, D_prime, hap_weighted, polarized=False)
+[[1. 1.]
+ [1. 1.]]
+
+>>> _two_site_general_stat(*correlated, D2, total, polarized=True)
+[[0.02758726 0.02453894]
+ [0.02453894 0.03856119]]
+>>> _two_site_general_stat(*correlated_biallelic, D2, total, polarized=True)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+>>> _two_site_general_stat(*uncorrelated, D2, total, polarized=True)
+[[0.0308642 0.       ]
+ [0.        0.0308642]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, D2, total, polarized=True)
+[[0.0625 0.    ]
+ [0.     0.0625]]
+>>> _two_site_general_stat(*repulsion_biallelic, D2, total, polarized=True)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+
+>>> _two_site_general_stat(*correlated, D2, total, polarized=False)
+[[0.0238446 0.0238446]
+ [0.0238446 0.0238446]]
+>>> _two_site_general_stat(*correlated_biallelic, D2, total, polarized=False)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+>>> _two_site_general_stat(*uncorrelated, D2, total, polarized=False)
+[[0.02469136 0.        ]
+ [0.         0.02469136]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, D2, total, polarized=False)
+[[0.0625 0.    ]
+ [0.     0.0625]]
+>>> _two_site_general_stat(*repulsion_biallelic, D2, total, polarized=False)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+
+>>> _two_site_general_stat(*correlated, Dz, total, polarized=True)
+[[ 0.01105014 -0.00556318]
+ [-0.00556318  0.00419143]]
+>>> _two_site_general_stat(*correlated_biallelic, Dz, total, polarized=True)
+[[0. 0.]
+ [0. 0.]]
+>>> _two_site_general_stat(*uncorrelated, Dz, total, polarized=True)
+[[0.00617284 0.        ]
+ [0.         0.00617284]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, Dz, total, polarized=True)
+[[0. 0.]
+ [0. 0.]]
+>>> _two_site_general_stat(*repulsion_biallelic, Dz, total, polarized=True)
+[[0. 0.]
+ [0. 0.]]
+
+>>> _two_site_general_stat(*correlated, Dz, total, polarized=False)
+[[0.00338702 0.00338702]
+ [0.00338702 0.00338702]]
+>>> _two_site_general_stat(*correlated_biallelic, Dz, total, polarized=False)
+[[0. 0.]
+ [0. 0.]]
+>>> _two_site_general_stat(*uncorrelated, Dz, total, polarized=False)
+[[0. 0.]
+ [0. 0.]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, Dz, total, polarized=False)
+[[0. 0.]
+ [0. 0.]]
+>>> _two_site_general_stat(*repulsion_biallelic, Dz, total, polarized=False)
+[[0. 0.]
+ [0. 0.]]
+
+>>> _two_site_general_stat(*correlated, pi2, total, polarized=True)
+[[0.04404816 0.0492303 ]
+ [0.0492303  0.0550221 ]]
+>>> _two_site_general_stat(*correlated_biallelic, pi2, total, polarized=True)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+>>> _two_site_general_stat(*uncorrelated, pi2, total, polarized=True)
+[[0.04938272 0.04938272]
+ [0.04938272 0.04938272]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, pi2, total, polarized=True)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+>>> _two_site_general_stat(*repulsion_biallelic, pi2, total, polarized=True)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+
+>>> _two_site_general_stat(*correlated, pi2, total, polarized=False)
+[[0.04579248 0.04579248]
+ [0.04579248 0.04579248]]
+>>> _two_site_general_stat(*correlated_biallelic, pi2, total, polarized=False)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+>>> _two_site_general_stat(*uncorrelated, pi2, total, polarized=False)
+[[0.04938272 0.04938272]
+ [0.04938272 0.04938272]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, pi2, total, polarized=False)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+>>> _two_site_general_stat(*repulsion_biallelic, pi2, total, polarized=False)
+[[0.0625 0.0625]
+ [0.0625 0.0625]]
+
+>>> _two_site_general_stat(*correlated, r, hap_weighted, polarized=True)
+[[0.66666667 0.44444444]
+ [0.44444444 0.77777778]]
+>>> _two_site_general_stat(*correlated_biallelic, r, hap_weighted, polarized=True)
+[[0.5 0.5]
+ [0.5 0.5]]
+>>> _two_site_general_stat(*uncorrelated, r, hap_weighted, polarized=True)
+[[0.66666667 0.        ]
+ [0.         0.66666667]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, r, hap_weighted, polarized=True)
+[[0.5 0. ]
+ [0.  0.5]]
+>>> _two_site_general_stat(*repulsion_biallelic, r, hap_weighted, polarized=True)
+[[0.5 0. ]
+ [0.  0.5]]
+
+>>> _two_site_general_stat(*correlated, r, hap_weighted, polarized=False)
+[[1. 1.]
+ [1. 1.]]
+>>> _two_site_general_stat(*correlated_biallelic, r, hap_weighted, polarized=False)
+[[1. 1.]
+ [1. 1.]]
+>>> _two_site_general_stat(*uncorrelated, r, hap_weighted, polarized=False)
+[[1. 0.]
+ [0. 1.]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, r, hap_weighted, polarized=False)
+[[1. 0.]
+ [0. 1.]]
+>>> _two_site_general_stat(*repulsion_biallelic, r, hap_weighted, polarized=False)
+[[1. 1.]
+ [1. 1.]]
+
+>>> _two_site_general_stat(*correlated, r2, hap_weighted, polarized=True)
+[[0.66666667 0.44444444]
+ [0.44444444 0.77777778]]
+>>> _two_site_general_stat(*correlated_biallelic, r2, hap_weighted, polarized=True)
+[[0.5 0.5]
+ [0.5 0.5]]
+>>> _two_site_general_stat(*uncorrelated, r2, hap_weighted, polarized=True)
+[[0.66666667 0.        ]
+ [0.         0.66666667]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, r2, hap_weighted, polarized=True)
+[[0.5 0. ]
+ [0.  0.5]]
+>>> _two_site_general_stat(*repulsion_biallelic, r2, hap_weighted, polarized=True)
+[[0.5 0. ]
+ [0.  0.5]]
+
+>>> _two_site_general_stat(*correlated, r2, hap_weighted, polarized=False)
+[[1. 1.]
+ [1. 1.]]
+>>> _two_site_general_stat(*correlated_biallelic, r2, hap_weighted, polarized=False)
+[[1. 1.]
+ [1. 1.]]
+>>> _two_site_general_stat(*uncorrelated, r2, hap_weighted, polarized=False)
+[[1. 0.]
+ [0. 1.]]
+>>> _two_site_general_stat(*uncorrelated_biallelic, r2, hap_weighted, polarized=False)
+[[1. 0.]
+ [0. 1.]]
+>>> _two_site_general_stat(*repulsion_biallelic, r2, hap_weighted, polarized=False)
+[[1. 1.]
+ [1. 1.]]
+
+"""
 from enum import Enum
 
 import numpy as np
-import tskit
-
-# Data taken from the tests: https://github.com/tskit-dev/tskit/blob/61a844a/c/tests/testlib.c#L55-L96
-
-nodes = """\
-is_sample time population individual
-1  0       -1   0
-1  0       -1   0
-1  0       -1   1
-1  0       -1   1
-0  0.071   -1   -1
-0  0.090   -1   -1
-0  0.170   -1   -1
-0  0.202   -1   -1
-0  0.253   -1   -1
-"""
-
-edges = """\
-left   right   parent  child
-2 10 4 2
-2 10 4 3
-0 10 5 1
-0 2  5 3
-2 10 5 4
-0 7  6 0,5
-7 10 7 0,5
-0 2  8 2,6
-"""
-
-sites = """\
-position ancestral_state
-1      0
-4.5    0
-8.5    0
-"""
-
-mutations = """\
-site node derived_state
-0      2   1
-1      0   1
-2      5   1
-"""
-
-individuals = """\
-flags  location   parents
-0      0.2,1.5    -1,-1
-0      0.0,0.0    -1,-1
-"""
-
-paper_ex_ts = tskit.load_text(
-    nodes=io.StringIO(nodes),
-    edges=io.StringIO(edges),
-    sites=io.StringIO(sites),
-    individuals=io.StringIO(individuals),
-    mutations=io.StringIO(mutations),
-    strict=False,
-)
 
 
 def leave_out_wraparound(n, skip_idx):
@@ -135,58 +315,14 @@ def get_allele_weights(a_state, b_state, num_samples, haplotype_states):
         haplotype_states[a_state[i], b_state[i]] += 1
 
 
-def compute_D(w_AB, w_Ab, w_aB, n):
-    """
-    >>> compute_D(3, 0, 0, 4)
-    0.1875
-
-    >>> compute_D(2, 1, 1, 4)
-    -0.0625
-
-    """
-    p_AB = w_AB / float(n)
-    p_Ab = w_Ab / float(n)
-    p_aB = w_aB / float(n)
-
-    p_A = p_AB + p_Ab
-    p_B = p_AB + p_aB
-
-    return p_AB - (p_A * p_B)
-
-
-def compute_r2(w_AB, w_Ab, w_aB, n):
-    """
-    >>> compute_r2(3, 0, 0, 4)
-    1.0
-
-    >>> compute_r2(2, 1, 1, 4)
-    0.1111111111111111
-
-    """
-    p_AB = w_AB / float(n)
-    p_Ab = w_Ab / float(n)
-    p_aB = w_aB / float(n)
-
-    p_A = p_AB + p_Ab
-    p_B = p_AB + p_aB
-
-    D = p_AB - (p_A * p_B)
-    denom = p_A * p_B * (1 - p_A) * (1 - p_B)
-
-    if denom == 0 and D == 0:
-        return np.nan
-
-    return (D * D) / denom
-
-
-def two_site_general_stat(ts, summary_func, norm_method):
+def two_site_general_stat(ts, summary_func, norm_method, polarized=False, debug=False):
     """
     Wrapper for python prototyping, inline in final version
     """
     state = np.zeros((ts.num_sites, ts.num_samples), dtype=int)
     num_states = np.zeros(ts.num_sites, dtype=int)
     get_state(ts, state, num_states)
-    return _two_site_general_stat(state, num_states, summary_func, norm_method)
+    return _two_site_general_stat(state, num_states, summary_func, norm_method, polarized=polarized, debug=debug)
 
 
 class NormMethod(Enum):
@@ -201,7 +337,9 @@ class NormMethod(Enum):
     HAP_WEIGHTED = "hap_weighted"
 
 
-def _two_site_general_stat(state, num_states, summary_func, norm_method, polarized=False, debug=False):
+def _two_site_general_stat(
+    state, num_states, summary_func, norm_method, polarized=False, debug=False
+):  # pylint:disable=too-many-arguments,too-many-locals,too-many-branches
     norm = NormMethod(norm_method)
     result = np.zeros((len(state), len(state)))
     for a_site_id, b_site_id in pairs_with_replacement_idx(len(state)):
