@@ -1,3 +1,8 @@
 *__pycache__*
 *.~undo-tree~
 *.ipynb_checkpoints
+subprojects
+subprojects/
+!subprojects/*.wrap
+*.gdb_history
+*.cache
