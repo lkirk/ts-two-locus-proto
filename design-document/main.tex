@@ -268,7 +268,7 @@ normalization strategy is described in further detail in~\ref{section:normalizat
 
     \hline $D$ & Polarized & Total & $D = f_{ab} - f_{a}f_{b}$ \\
 
-    $D^{\prime}$ & Polarized & Haplotype Weighted & $D^{\prime} =
+    $D^{\prime}$ & Unpolarized & Haplotype Weighted & $D^{\prime} =
 \frac{D}{D_{max}}$ \\
 
     $D^{2}$ & Unpolarized & Total & $D^{2} = D^{2}$ \\
@@ -278,7 +278,7 @@ normalization strategy is described in further detail in~\ref{section:normalizat
     $\pi_{2}$ & Unpolarized & Total & $\pi_{2} = f_{a}f_{b}(1-f_{a})(1-f_{b})$
 \\
 
-    $r$ & Polarized & Haplotype Weighted & $r =
+    $r$ & Polarized & Total & $r =
 \frac{D}{\sqrt{f_{a}f_{b}(1-f_{a})(1-f_{b})}}$ \\
 
     $r^{2}$ & Unpolarized & Haplotype Weighted & $r^{2} =
@@ -317,8 +317,9 @@ two_site_summary_func(
 
 \subsection{Normalization} \label{section:normalization}
 In our testing of summary functions, we found that the appropriate normalization
-procedure can vary depending on the summary function. We've settled on two
-normalization procedures: ``Haplotype Weighted'' and ``Total''.
+procedure can vary depending on the summary function. We've settled on three
+normalization procedures: ``Haplotype Weighted'', ``Allele Frequency Weighted'',
+and ``Total''.
 
 \subsubsection{Hapltype Weighted}
 In the ``Haplotype Weighted'' normalization method, we weight the statistics by
@@ -330,6 +331,18 @@ $D^{\prime}$, $r$ and $r^{2}$.
 where $F$ is the summary function and $p(A_{i}B_{j})$ is the frequency of
 haplotype $A_{i}B_{j}$. This method can be found
 in~\cite{zhao2007evaluation}.
+
+\subsubsection{Allele Frequency Weighted}
+In the ``Allele Frequency'' normalization method, we weight the statistics by
+the product of the allele frequencies. This is necessary in ratio statistics,
+such as TODO.
+\[
+  \sum_{i=1}^{n}\sum_{j=1}^{m}p(A_{i})p(B_{j})F_{ij}
+\]
+where $F$ is the summary function and $p(A_{i})p(B_{j})$ is the product of the
+allele frequencies of the $A_{i}$ allele and the $B_{j}$ allele. This method is
+described in~\cite{hedrick1987gametic}.
+
 \subsubsection{Total}
 In the ``Total'' normalization method, we simply divide by the number of
 haplotypes that we've visited. If we're using a non-ratio statistic, this is
