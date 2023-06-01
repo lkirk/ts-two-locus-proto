@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 import tskit
 
-from tskit_ld_proto.summary_functions import D, D2, r2, r, D_prime, Dz, pi2
-from tskit_ld_proto.ld_proto import compute_two_site_general_stat, get_state, two_site_general_stat
+from two_locus_proto.summary_functions import D, D2, r2, r, D_prime, Dz, pi2
+from two_locus_proto.site import compute_two_site_general_stat, get_state, two_site_general_stat
 
 TEST_DATA = dict(
     CORRELATED=[[0, 1, 1, 0, 2, 2, 1, 0, 1], [1, 2, 2, 1, 0, 0, 2, 1, 2]],

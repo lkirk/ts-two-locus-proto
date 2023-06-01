@@ -1,9 +1,9 @@
 [project]
-name = "tskit_ld_proto"
+name = "two_locus_proto"
 version = "0.1"
 
 [tool.setuptools.packages.find]
-include = ["tskit_ld_proto"]
+include = ["two_locus_proto"]
 
 [tool.black]
 line-length = 120
