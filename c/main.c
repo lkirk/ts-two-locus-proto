@@ -21,24 +21,29 @@ int main(int argc, char **argv) {
   /* tsk_id_t sample_sets[] = {0, 1, 2, 3, 4, 5, 4, 5, 6, 1, 2}; */
   /* tsk_size_t sample_set_sizes[] = {3, 3, 3, 2}; */
 
-  int num_sample_sets = 1;
-  tsk_id_t sample_sets[ts.num_samples];
-  for (int i = 0; i < ts.num_samples; i++) {
-    sample_sets[i] = i;
-  }
-  tsk_size_t sample_set_sizes[] = {ts.num_samples};
+  // --
 
-  /* /\* double *pi = calloc(num_sample_sets, sizeof(double)); *\/ */
+  /* int num_sample_sets = 1; */
+  /* tsk_id_t sample_sets[ts.num_samples]; */
+  /* for (int i = 0; i < ts.num_samples; i++) { */
+  /*   sample_sets[i] = i; */
+  /* } */
+  /* tsk_size_t sample_set_sizes[] = {ts.num_samples}; */
 
-  double pi[num_sample_sets];
-  int ret = tsk_treeseq_diversity(&ts, num_sample_sets, sample_set_sizes,
-                                  sample_sets, 0, NULL, TSK_STAT_SITE, pi);
+  /* /\* /\\* double *pi = calloc(num_sample_sets, sizeof(double)); *\\/ *\/ */
 
-  /* tsk_ld_calc_t ld_calc; */
-  /* tsk_ld_calc_init(&ld_calc, &ts); */
+  /* double pi[num_sample_sets]; */
+  /* int ret = tsk_treeseq_diversity(&ts, num_sample_sets, sample_set_sizes, */
+  /*                                 sample_sets, 0, NULL, TSK_STAT_SITE, pi);
+   */
 
-  /* double r2; */
-  /* int ret = tsk_ld_calc_get_r2(&ld_calc, 0, 1, &r2); */
+  // --
+
+  tsk_ld_calc_t ld_calc;
+  tsk_ld_calc_init(&ld_calc, &ts);
+
+  double r2;
+  int ret = tsk_ld_calc_get_r2(&ld_calc, 0, 1, &r2);
 
   if (ret != 0) {
     puts(tsk_strerror(ret));
