@@ -1,29 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "tskit.h"
-#include "tskit/core.h"
-#include "tskit/tables.h"
-#include "tskit/trees.h"
-
-typedef uint32_t tsk_bit_array_t;
-#define BIT_ARRAY_CHUNK ((tsk_bit_array_t) 5)
-#define BIT_ARRAY_NUM_BITS ((tsk_bit_array_t) 1 << BIT_ARRAY_CHUNK)
-
-#define GET_2D_ROW(array, row_len, row) (array + (((size_t) (row_len)) * (size_t) row))
-/* static int */
-/* cmp_uint32(const void *a, const void *b) */
-/* { */
-/*     const uint32_t *ia = (const uint32_t *) a; */
-/*     const uint32_t *ib = (const uint32_t *) b; */
-/*     return (*ia > *ib) - (*ia < *ib); */
-/* } */
+#include "prototype.h"
 
 void
 union_bit_array(const tsk_bit_array_t *a, const tsk_bit_array_t *b, tsk_bit_array_t *out,
     const tsk_size_t len)
 {
-    for (int i = 0; i < len; i++) {
+    for (tsk_size_t i = 0; i < len; i++) {
         out[i] = a[i] & b[i];
     }
 }
@@ -31,7 +15,7 @@ union_bit_array(const tsk_bit_array_t *a, const tsk_bit_array_t *b, tsk_bit_arra
 void
 subtract_bit_arrays(tsk_bit_array_t *a, const tsk_bit_array_t *b, const tsk_size_t len)
 {
-    for (int i = 0; i < len; i++) {
+    for (tsk_size_t i = 0; i < len; i++) {
         a[i] &= ~(b[i]);
     }
 }
@@ -39,41 +23,64 @@ subtract_bit_arrays(tsk_bit_array_t *a, const tsk_bit_array_t *b, const tsk_size
 void
 add_bit_arrays(tsk_bit_array_t *a, const tsk_bit_array_t *b, const tsk_size_t len)
 {
-    for (int i = 0; i < len; i++) {
+    for (tsk_size_t i = 0; i < len; i++) {
         a[i] |= b[i];
     }
 }
 
+/* void */
+/* add_bits_to_bit_array(tsk_bit_array_t *a, const tsk_id_t *bits, const tsk_size_t len)
+ */
+/* { */
+/*     for (tsk_size_t i = 0; i < len; i++) { */
+/*         a[bits[i] >> BIT_ARRAY_CHUNK] |= 1 << (bits[i] - (bits[i] >>
+ * BIT_ARRAY_CHUNK)); */
+/*     } */
+/* } */
+
 void
-add_bits_to_bit_array(tsk_bit_array_t *a, const tsk_id_t *bits, const tsk_size_t len)
+add_bit_to_bit_array(tsk_bit_array_t *a, const tsk_bit_array_t bit)
 {
-    for (int i = 0; i < len; i++) {
-        a[bits[i] >> BIT_ARRAY_CHUNK] |= 1 << (bits[i] - (bits[i] >> BIT_ARRAY_CHUNK));
-    }
+    tsk_bit_array_t i = bit >> BIT_ARRAY_CHUNK;
+    a[i] |= (tsk_bit_array_t) 1 << (bit - (BIT_ARRAY_NUM_BITS * i));
 }
 
 void
-add_bit_to_bit_array(tsk_bit_array_t *a, const tsk_id_t bit)
+count_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t *c)
 {
-    a[bit >> BIT_ARRAY_CHUNK] |= (tsk_bit_array_t) 1 << (bit - (bit >> BIT_ARRAY_CHUNK));
-}
-
-void
-count_bit_array(tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t *c)
-{
-    for (int i = 0; i < len; i++) {
-        while (a[i]) {
-            a[i] &= (a[i] - 1);
-            c += 1;
+    tsk_bit_array_t tmp;
+    *c = 0;
+    for (tsk_size_t i = 0; i < len; i++) {
+        tmp = a[i];
+        while (tmp) {
+            tmp &= (tmp - 1);
+            *c += 1;
         }
     }
 }
+
+/* void */
+/* count_bit_array(tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t *c) */
+/* { */
+/*     static const tsk_bit_array_t S[] = { 1, 2, 4, 8, 16 }; // Magic Binary Numbers */
+/*     static const tsk_bit_array_t B[] */
+/*         = { 0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF, 0x0000FFFF }; */
+/*     tsk_bit_array_t tmp = 0; */
+
+/*     for (int i = 0; i < len; i++) { */
+/*         tmp = a[i] - ((a[i] >> (tsk_bit_array_t) 1) & B[0]); */
+/*         tmp = ((tmp >> S[1]) & B[1]) + (tmp & B[1]); */
+/*         tmp = ((tmp >> S[2]) + tmp) & B[2]; */
+/*         tmp = ((tmp >> S[3]) + tmp) & B[3]; */
+/*         tmp = ((tmp >> S[4]) + tmp) & B[4]; */
+/*     } */
+/* } */
 
 void
 print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline)
 {
     printf("[ ");
-    for (int i = 0; i < len; i++) {
+    for (tsk_size_t i = 0; i < len; i++) {
         printf("%i ", a[i]);
     }
     if (newline) {
@@ -175,13 +182,14 @@ int
 get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     const tsk_size_t num_sample_chunks, const tsk_id_t *right_child,
     const tsk_id_t *left_sib, const tsk_id_t *parent, tsk_size_t *out_offset,
-    tsk_bit_array_t **mut_allele_samples)
+    tsk_size_t *mut_offset, tsk_bit_array_t **mut_allele_samples)
 {
 
-    const tsk_id_t num_edges = (tsk_id_t) self->tables->edges.num_rows;
+    const tsk_size_t num_edges = self->tables->edges.num_rows;
     const tsk_flags_t *flags = self->tables->nodes.flags;
     const tsk_size_t num_sites = self->tree_sites_length[tree_index];
     const tsk_site_t *sites = self->tree_sites[tree_index];
+    const tsk_id_t *mut_nodes = self->tables->mutations.node;
     const tsk_site_t *site;
 
     tsk_id_t u;
@@ -190,31 +198,24 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
 
     tsk_id_t top_mut_node = 0;
     tsk_size_t num_mutations = 0;
-    // TODO: how is this working
-    tsk_id_t *mut_nodes = tsk_malloc(num_mutations * sizeof(*mut_nodes));
 
-    for (int i = 0; i < num_sites; i++) {
-        site = &sites[i];
-        for (int j = 0; j < site->mutations_length; j++) {
-            mut_nodes[num_mutations] = site->mutations[j].node;
+    for (tsk_size_t s = 0; s < num_sites; s++) {
+        site = &sites[s];
+        for (tsk_size_t m = 0; m < site->mutations_length; m++) {
             num_mutations++;
-            if (site->mutations[j].node > top_mut_node) {
-                top_mut_node = site->mutations[j].node;
+            if (site->mutations[m].node > top_mut_node) {
+                top_mut_node = site->mutations[m].node;
             }
         }
     }
-    /* printf("top mut node is: %u \n", top_mut_node); */
+
     tsk_bit_array_t *mut_samples
         = tsk_calloc(num_mutations * num_sample_chunks, sizeof(*mut_samples));
 
     tsk_id_t *first_curr_node = tsk_malloc(num_mutations * 2 * sizeof(*first_curr_node));
-    tsk_memset(first_curr_node, 0xff, num_mutations * 2 * sizeof(*first_curr_node));
+    // Sentinel value is -2 instead of -1
+    tsk_memset(first_curr_node, 0xfe, num_mutations * 2 * sizeof(*first_curr_node));
 
-    // TODO: how to do this w/ memset
-    // TODO: consider another sentinel value
-    for (int i = 0; i < (num_mutations * 2); i++) {
-        first_curr_node[i] *= 2;
-    }
     tsk_id_t *stack = tsk_malloc((1 + self->num_samples + num_edges) * sizeof(*stack));
 
     stack_top = 0;
@@ -226,26 +227,26 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
         node = stack[stack_top];
         stack_top--;
         /* printf("N- %d\n", node); */
-        for (int i = 0; i < num_mutations; i++) {
+        for (tsk_size_t m = 0; m < num_mutations; m++) {
             // TODO: rename row to something better
-            row = GET_2D_ROW(first_curr_node, 2, i);
-            mut_samples_row = GET_2D_ROW(mut_samples, num_sample_chunks, i);
-            if (mut_nodes[i] == node) {
+            row = GET_2D_ROW(first_curr_node, 2, m);
+            mut_samples_row = GET_2D_ROW(mut_samples, num_sample_chunks, m);
+            if (mut_nodes[m + *mut_offset] == node) {
                 row[0] = node;
                 if (flags[node] & TSK_NODE_IS_SAMPLE) {
-                    add_bit_to_bit_array(mut_samples_row, node);
+                    add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
                 }
             }
             if (row[0] != -2) { // TODO: consider another sentinel value
                 if (row[1] == parent[node] || row[1] == left_sib[node]) {
                     row[1] = node;
                     if (flags[node] & TSK_NODE_IS_SAMPLE) {
-                        add_bit_to_bit_array(mut_samples_row, node);
+                        add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
                     }
                 } else if (row[0] == parent[node]) {
                     row[1] = node;
                     if (flags[node] & TSK_NODE_IS_SAMPLE) {
-                        add_bit_to_bit_array(mut_samples_row, node);
+                        add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
                     }
                 }
             }
@@ -260,7 +261,7 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
 
     tsk_bit_array_t *out_row;
     tsk_size_t state_offset = 0;
-    for (int s = 0; s < num_sites; s++) {
+    for (tsk_size_t s = 0; s < num_sites; s++) {
         site = &self->tree_sites[tree_index][s];
 
         mut_samples_row = GET_2D_ROW(mut_samples, num_sample_chunks, state_offset);
@@ -270,10 +271,20 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
 
         out_row = GET_2D_ROW(*mut_allele_samples, num_sample_chunks, *out_offset);
         *out_offset += self->site_mutations_length[site->id] + 1;
+        *mut_offset += self->site_mutations_length[site->id];
         get_allele_samples(site, num_sample_chunks, mut_samples_row, out_row);
     }
+
+    printf("tree %lu \n", tree_index);
+    print_bit_array(mut_samples, num_mutations * num_sample_chunks, 1);
+
     return 0;
 }
+
+/* int */
+/* compute_general_two_stat_site_result() */
+/* { */
+/* } */
 
 int
 two_locus_stat(tsk_treeseq_t *self)
@@ -287,6 +298,9 @@ two_locus_stat(tsk_treeseq_t *self)
     const tsk_id_t *restrict edge_parent = self->tables->edges.parent;
     const tsk_id_t *restrict edge_child = self->tables->edges.child;
     const double sequence_length = self->tables->sequence_length;
+    const tsk_size_t total_alleles
+        = self->tables->mutations.num_rows + self->tables->sites.num_rows;
+    const tsk_size_t num_samples = self->num_samples;
 
     tsk_id_t *restrict parent = tsk_malloc(num_nodes * sizeof(*parent));
     tsk_id_t *restrict right_child = tsk_malloc(num_nodes * sizeof(*right_child));
@@ -298,58 +312,47 @@ two_locus_stat(tsk_treeseq_t *self)
     tsk_memset(left_sib, 0xff, num_nodes * sizeof(*left_sib));
     tsk_memset(right_sib, 0xff, num_nodes * sizeof(*right_sib));
 
-    tsk_size_t tree_index;
+    tsk_size_t tree_index, num_sample_chunks;
     double t_left, t_right;
     tsk_id_t tj, tk, h, u, v, c;
 
-    tsk_site_t site;
-    tsk_size_t total_mutations = 0;
-    tsk_size_t total_alleles = 0;
-    for (int t = 0; t < self->num_trees; t++) {
-        for (int s = 0; s < self->tree_sites_length[t]; s++) {
-            total_alleles++; // one for the ancestral state
-            site = self->tree_sites[t][s];
-            for (int m = 0; m < self->site_mutations_length[site.id]; m++) {
-                total_mutations++;
-                total_alleles++;
-            }
-        }
-    }
-    printf("total_mutations %lu\n", total_mutations);
-    tsk_size_t num_sample_chunks = (self->num_samples >> BIT_ARRAY_CHUNK)
-                                           + (self->num_samples % BIT_ARRAY_NUM_BITS)
-                                       ? 1
-                                       : 0;
+    num_sample_chunks
+        = (num_samples >> BIT_ARRAY_CHUNK) + (num_samples % BIT_ARRAY_NUM_BITS) ? 1 : 0;
 
-    // TODO: this could be smaller if we concatenated mut_allele segments after
-    //       computing the number of alleles
     tsk_bit_array_t *mut_allele_samples
         = tsk_calloc(total_alleles * num_sample_chunks, sizeof(*mut_allele_samples));
+    // TODO: this could be smaller if we concatenated mut_allele segments after
+    //       computing the number of alleles
 
-    int tmp = num_sample_chunks - 1;
+    int tmp = (int) num_sample_chunks - 1;
     tsk_bit_array_t all_samples_bits[num_sample_chunks];
 
+    // TODO: are these casts necessary?
     all_samples_bits[tmp]
-        = ~(~((tsk_bit_array_t) 0) // TODO: are these casts necessary?
-            << (self->num_samples % ((tsk_bit_array_t) 1 << BIT_ARRAY_CHUNK)));
+        = ~(~((tsk_bit_array_t) 0)
+            << (num_samples % ((tsk_bit_array_t) 1 << BIT_ARRAY_CHUNK)));
     tmp--;
     while (tmp >= 0) {
         all_samples_bits[tmp] = ~((tsk_bit_array_t) 0);
         tmp--;
     }
 
+    tsk_size_t *site_offsets
+        = tsk_malloc(self->tables->sites.num_rows * sizeof(*site_offsets));
     tsk_bit_array_t *allele_samples_row;
-    int num_muts_cumsum = 0;
-    for (int t = 0; t < self->num_trees; t++) {
-        for (int s = 0; s < self->tree_sites_length[t]; s++) {
+    tsk_size_t num_muts_cumsum = 0;
+    for (tsk_size_t t = 0; t < self->num_trees; t++) {
+        for (tsk_size_t s = 0; s < self->tree_sites_length[t]; s++) {
             allele_samples_row
                 = GET_2D_ROW(mut_allele_samples, num_sample_chunks, num_muts_cumsum);
             add_bit_arrays(allele_samples_row, all_samples_bits, num_sample_chunks);
+            site_offsets[self->tree_sites[t][s].id] = num_muts_cumsum;
             num_muts_cumsum
                 += self->site_mutations_length[self->tree_sites[t][s].id] + 1;
         }
     }
     tsk_size_t out_offset = 0;
+    tsk_size_t mut_offset = 0;
 
     tj = 0;
     tk = 0;
@@ -408,31 +411,100 @@ two_locus_stat(tsk_treeseq_t *self)
         }
 
         get_mutation_samples(self, tree_index, num_sample_chunks, right_child, left_sib,
-            parent, &out_offset, &mut_allele_samples);
-
-        /* printf("tree %lu \n", tree_index); */
-        /* print_bit_array(mut_samples, num_mutations * num_sample_chunks, 1); */
+            parent, &out_offset, &mut_offset, &mut_allele_samples);
 
         tree_index++;
         t_left = t_right;
     }
     puts("final");
     print_bit_array(mut_allele_samples, total_alleles * num_sample_chunks, 1);
-    return 0;
-}
 
-int
-main(int argc, char **argv)
-{
-    char *filename;
-    if (argc != 2) {
-        printf("usage: %s <input_tree>\n", argv[0]);
-        exit(1);
+    tsk_size_t inner = 0;
+    const tsk_bit_array_t *left_allele_samples;
+    const tsk_bit_array_t *right_allele_samples;
+    tsk_size_t left_offset = 0;
+    tsk_size_t right_offset = 0;
+    tsk_size_t w_A, w_B, w_AB, w_Ab, w_aB = 0;
+    tsk_bit_array_t AB_samples[num_sample_chunks];
+
+    for (tsk_size_t s_0 = 0; s_0 < self->tables->sites.num_rows; s_0++) {
+        left_offset = site_offsets[s_0];
+        for (tsk_size_t s_1 = inner; s_1 < self->tables->sites.num_rows; s_1++) {
+            right_offset = site_offsets[s_1];
+            for (tsk_size_t m_0 = 0; m_0 < self->site_mutations_length[s_0] + 1; m_0++) {
+                for (tsk_size_t m_1 = 0; m_1 < self->site_mutations_length[s_1] + 1;
+                     m_1++) {
+
+                    /* printf("l: %d %d r: %d %d o: %lu %lu ", s_0, m_0, s_1, m_1, */
+                    /*     left_offset + m_0, right_offset + m_1); */
+                    left_allele_samples = GET_2D_ROW(
+                        mut_allele_samples, num_sample_chunks, left_offset + m_0);
+                    right_allele_samples = GET_2D_ROW(
+                        mut_allele_samples, num_sample_chunks, right_offset + m_1);
+
+                    union_bit_array(left_allele_samples, right_allele_samples,
+                        AB_samples, num_sample_chunks);
+                    count_bit_array(AB_samples, num_sample_chunks, &w_AB);
+                    count_bit_array(left_allele_samples, num_sample_chunks, &w_A);
+                    count_bit_array(right_allele_samples, num_sample_chunks, &w_B);
+                    print_bit_array(AB_samples, 1, 0);
+                    w_Ab = w_A - w_AB;
+                    w_aB = w_B - w_AB;
+                    printf("%lu\t%lu\t%lu\n", w_AB, w_Ab, w_aB);
+
+                    /* print_bit_array(left_allele_samples, num_sample_chunks, 0); */
+                    /* print_bit_array(right_allele_samples, num_sample_chunks, 1); */
+                }
+            }
+        }
+        inner++;
     }
-    filename = argv[1];
 
-    tsk_treeseq_t ts;
-    tsk_treeseq_load(&ts, filename, 0);
+    /* tsk_id_t inner = 0; */
+    /* tsk_size_t left_offset = 0; */
+    /* tsk_size_t right_offset = 0; */
+    /* tsk_size_t inner_right_offset = 0; */
+    /* tsk_size_t inner_left_offset = 0; */
+    /* tsk_size_t outer_left_offset = 0; */
+    /* const tsk_bit_array_t *left_allele_samples; */
+    /* const tsk_bit_array_t *right_allele_samples; */
 
-    two_locus_stat(&ts);
+    /* for (tsk_id_t s_0 = 0; s_0 < self->tables->sites.num_rows; s_0++) { */
+    /*     left_allele_samples */
+    /*         = GET_2D_ROW(mut_allele_samples, num_sample_chunks, left_offset); */
+    /*     for (tsk_id_t s_1 = inner; s_1 < self->tables->sites.num_rows; s_1++) { */
+    /*         right_allele_samples */
+    /*             = GET_2D_ROW(mut_allele_samples, num_sample_chunks, right_offset); */
+    /*         left_offset = inner_left_offset; */
+    /*         for (tsk_id_t m_0 = 0; m_0 < self->site_mutations_length[s_0] + 1; m_0++)
+     * { */
+    /*             right_offset = inner_right_offset; */
+    /*             for (tsk_id_t m_1 = 0; m_1 < self->site_mutations_length[s_1] + 1; */
+    /*                  m_1++) { */
+    /*                 /\* printf("%lu %lu\n", left_offset, right_offset); *\/ */
+
+    /*                 printf("l: %d %d r: %d %d o: %lu %lu ", s_0, m_0, s_1, m_1, */
+    /*                     left_offset, right_offset); */
+    /*                 print_bit_array( */
+    /*                     GET_2D_ROW(left_allele_samples, num_sample_chunks,
+     * left_offset), */
+    /*                     num_sample_chunks, 0); */
+    /*                 print_bit_array(GET_2D_ROW(right_allele_samples,
+     * num_sample_chunks, */
+    /*                                     right_offset), */
+    /*                     num_sample_chunks, 1); */
+    /*                 right_offset++; */
+    /*             } */
+    /*             left_offset++; */
+    /*         } */
+    /*         inner_right_offset = right_offset; */
+    /*     } */
+    /*     inner++; */
+    /* } */
+
+    /* for (tree_index = 0; tree_index < self->num_trees; tree_index++) { */
+    /*   for ( */
+    /* } */
+
+    return 0;
 }

@@ -8,5 +8,17 @@ c_args = [
     '-fshort-enums', '-fno-common'
 ]
 
-executable('two-locus-debug', ['debug.c'], dependencies: [dependency('tskit')])
-executable('two-locus-prototype', ['prototype.c'], dependencies: [dependency('tskit')])
+inc = include_directories(['.'])
+deps = [dependency('tskit')]
+sources = ['prototype.c']
+
+executable('two-locus-debug', ['debug.c'], c_args: c_args, dependencies: deps, include_directories: inc)
+executable('two-locus-prototype', sources + ['main.c'], c_args: c_args, dependencies: deps, include_directories: inc)
+
+prototype_lib = static_library('ts-prototype', sources: sources, dependencies: deps)
+
+cunit_dep = dependency('cunit')
+test_lib = static_library('testlib', sources: ['testlib.c'], dependencies: [cunit_dep, deps])
+test_prototype = executable('test_prototype', ['test_prototype.c'],
+                            link_with: [prototype_lib, test_lib], c_args: c_args, dependencies: [cunit_dep, deps])
+test('prototype', test_prototype)
