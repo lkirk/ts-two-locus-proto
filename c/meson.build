@@ -12,7 +12,6 @@ inc = include_directories(['.'])
 deps = [dependency('tskit')]
 sources = ['prototype.c']
 
-executable('two-locus-debug', ['debug.c'], c_args: c_args, dependencies: deps, include_directories: inc)
 executable('two-locus-prototype', sources + ['main.c'], c_args: c_args, dependencies: deps, include_directories: inc)
 
 prototype_lib = static_library('ts-prototype', sources: sources, dependencies: deps)
