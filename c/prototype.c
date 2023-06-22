@@ -28,16 +28,6 @@ add_bit_arrays(tsk_bit_array_t *a, const tsk_bit_array_t *b, const tsk_size_t le
     }
 }
 
-/* void */
-/* add_bits_to_bit_array(tsk_bit_array_t *a, const tsk_id_t *bits, const tsk_size_t len)
- */
-/* { */
-/*     for (tsk_size_t i = 0; i < len; i++) { */
-/*         a[bits[i] >> BIT_ARRAY_CHUNK] |= 1 << (bits[i] - (bits[i] >>
- * BIT_ARRAY_CHUNK)); */
-/*     } */
-/* } */
-
 void
 add_bit_to_bit_array(tsk_bit_array_t *a, const tsk_bit_array_t bit)
 {
@@ -58,23 +48,6 @@ count_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t *c)
         }
     }
 }
-
-/* void */
-/* count_bit_array(tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t *c) */
-/* { */
-/*     static const tsk_bit_array_t S[] = { 1, 2, 4, 8, 16 }; // Magic Binary Numbers */
-/*     static const tsk_bit_array_t B[] */
-/*         = { 0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF, 0x0000FFFF }; */
-/*     tsk_bit_array_t tmp = 0; */
-
-/*     for (int i = 0; i < len; i++) { */
-/*         tmp = a[i] - ((a[i] >> (tsk_bit_array_t) 1) & B[0]); */
-/*         tmp = ((tmp >> S[1]) & B[1]) + (tmp & B[1]); */
-/*         tmp = ((tmp >> S[2]) + tmp) & B[2]; */
-/*         tmp = ((tmp >> S[3]) + tmp) & B[3]; */
-/*         tmp = ((tmp >> S[4]) + tmp) & B[4]; */
-/*     } */
-/* } */
 
 void
 print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline)
@@ -434,9 +407,6 @@ two_locus_stat(tsk_treeseq_t *self)
             for (tsk_size_t m_0 = 0; m_0 < self->site_mutations_length[s_0] + 1; m_0++) {
                 for (tsk_size_t m_1 = 0; m_1 < self->site_mutations_length[s_1] + 1;
                      m_1++) {
-
-                    /* printf("l: %d %d r: %d %d o: %lu %lu ", s_0, m_0, s_1, m_1, */
-                    /*     left_offset + m_0, right_offset + m_1); */
                     left_allele_samples = GET_2D_ROW(
                         mut_allele_samples, num_sample_chunks, left_offset + m_0);
                     right_allele_samples = GET_2D_ROW(
@@ -451,60 +421,11 @@ two_locus_stat(tsk_treeseq_t *self)
                     w_Ab = w_A - w_AB;
                     w_aB = w_B - w_AB;
                     printf("%lu\t%lu\t%lu\n", w_AB, w_Ab, w_aB);
-
-                    /* print_bit_array(left_allele_samples, num_sample_chunks, 0); */
-                    /* print_bit_array(right_allele_samples, num_sample_chunks, 1); */
                 }
             }
         }
         inner++;
     }
-
-    /* tsk_id_t inner = 0; */
-    /* tsk_size_t left_offset = 0; */
-    /* tsk_size_t right_offset = 0; */
-    /* tsk_size_t inner_right_offset = 0; */
-    /* tsk_size_t inner_left_offset = 0; */
-    /* tsk_size_t outer_left_offset = 0; */
-    /* const tsk_bit_array_t *left_allele_samples; */
-    /* const tsk_bit_array_t *right_allele_samples; */
-
-    /* for (tsk_id_t s_0 = 0; s_0 < self->tables->sites.num_rows; s_0++) { */
-    /*     left_allele_samples */
-    /*         = GET_2D_ROW(mut_allele_samples, num_sample_chunks, left_offset); */
-    /*     for (tsk_id_t s_1 = inner; s_1 < self->tables->sites.num_rows; s_1++) { */
-    /*         right_allele_samples */
-    /*             = GET_2D_ROW(mut_allele_samples, num_sample_chunks, right_offset); */
-    /*         left_offset = inner_left_offset; */
-    /*         for (tsk_id_t m_0 = 0; m_0 < self->site_mutations_length[s_0] + 1; m_0++)
-     * { */
-    /*             right_offset = inner_right_offset; */
-    /*             for (tsk_id_t m_1 = 0; m_1 < self->site_mutations_length[s_1] + 1; */
-    /*                  m_1++) { */
-    /*                 /\* printf("%lu %lu\n", left_offset, right_offset); *\/ */
-
-    /*                 printf("l: %d %d r: %d %d o: %lu %lu ", s_0, m_0, s_1, m_1, */
-    /*                     left_offset, right_offset); */
-    /*                 print_bit_array( */
-    /*                     GET_2D_ROW(left_allele_samples, num_sample_chunks,
-     * left_offset), */
-    /*                     num_sample_chunks, 0); */
-    /*                 print_bit_array(GET_2D_ROW(right_allele_samples,
-     * num_sample_chunks, */
-    /*                                     right_offset), */
-    /*                     num_sample_chunks, 1); */
-    /*                 right_offset++; */
-    /*             } */
-    /*             left_offset++; */
-    /*         } */
-    /*         inner_right_offset = right_offset; */
-    /*     } */
-    /*     inner++; */
-    /* } */
-
-    /* for (tree_index = 0; tree_index < self->num_trees; tree_index++) { */
-    /*   for ( */
-    /* } */
 
     return 0;
 }

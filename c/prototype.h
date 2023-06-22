@@ -14,19 +14,11 @@ void subtract_bit_arrays(
 
 void add_bit_arrays(tsk_bit_array_t *a, const tsk_bit_array_t *b, const tsk_size_t len);
 
-/* void add_bits_to_bit_array( */
-/*     tsk_bit_array_t *a, const tsk_id_t *bits, const tsk_size_t len); */
-
-/* void add_bit_to_bit_array(tsk_bit_array_t *a, const tsk_id_t bit); */
 void add_bit_to_bit_array(tsk_bit_array_t *a, const tsk_bit_array_t bit);
 
 void count_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t *c);
 
 void print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline);
-
-/* static int get_allele_samples(const tsk_site_t *site, const tsk_size_t
- * num_sample_chunks, */
-/*     const tsk_bit_array_t *state, tsk_bit_array_t *allele_samples); */
 
 int get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     const tsk_size_t num_sample_chunks, const tsk_id_t *right_child,
