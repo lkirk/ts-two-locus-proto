@@ -1,3 +1,4 @@
+#pragma once
 #include "tskit.h"
 
 typedef uint32_t tsk_bit_array_t;
@@ -23,6 +24,7 @@ void print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline
 int get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     const tsk_size_t num_sample_chunks, const tsk_id_t *right_child,
     const tsk_id_t *left_sib, const tsk_id_t *parent, tsk_size_t *out_offset,
-    tsk_size_t *mut_offset, tsk_bit_array_t **mut_allele_samples);
+    tsk_size_t *mut_offset, tsk_bit_array_t **mut_allele_samples,
+    tsk_size_t **num_alleles);
 
 int two_locus_stat(tsk_treeseq_t *self);
