@@ -10,7 +10,7 @@ c_args = [
 
 inc = include_directories(['.'])
 deps = [dependency('tskit')]
-sources = ['prototype.c']
+sources = ['prototype.c', 'summary_functions.c']
 
 executable('two-locus-prototype', sources + ['main.c'], c_args: c_args, dependencies: deps, include_directories: inc)
 
