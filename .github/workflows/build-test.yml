@@ -6,8 +6,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
-    - uses: BSFishy/meson-build@v1.0.3
-      with:
-        action: test
-        meson-version: 1.1.1
-        directory: c/build
+    - name: setup meson and ninja
+      run:
+        python -m pip install 'meson==1.1.1' 'ninja==1.11.1'
+    - name: build and test
+      working-directory: c
+      run:
+        meson setup build
+        ninja -C build test
