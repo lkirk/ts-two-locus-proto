@@ -1,9 +1,8 @@
 *__pycache__*
 *.~undo-tree~
 *.ipynb_checkpoints
-subprojects
-subprojects/
-!subprojects/*.wrap
+c/subprojects/*
+!c/subprojects/*.wrap
 *.gdb_history
 *.cache
 *.egg-info
