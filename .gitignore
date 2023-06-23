@@ -3,6 +3,7 @@
 *.ipynb_checkpoints
 c/subprojects/*
 !c/subprojects/*.wrap
+!c/subprojects/packagefiles
 *.gdb_history
 *.cache
 *.egg-info
