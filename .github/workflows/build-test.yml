@@ -11,6 +11,6 @@ jobs:
         python -m pip install 'meson==1.1.1' 'ninja==1.11.1'
     - name: build and test
       working-directory: c
-      run:
+      run: |
         meson setup build
         ninja -C build test
