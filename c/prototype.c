@@ -49,20 +49,6 @@ count_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t *c)
     }
 }
 
-void
-print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline)
-{
-    printf("[ ");
-    for (tsk_size_t i = 0; i < len; i++) {
-        printf("%i ", a[i]);
-    }
-    if (newline) {
-        puts("]");
-    } else {
-        printf("]");
-    }
-}
-
 #define PRINT_ARRAY_GENERIC(a, len, format, newline)                                    \
     do {                                                                                \
         printf("[ ");                                                                   \
@@ -107,8 +93,6 @@ get_allele_samples(const tsk_site_t *site, const tsk_size_t num_sample_chunks,
     allele_lengths[0] = site->ancestral_state_length;
     *num_alleles = 1;
 
-    /* printf("state array: "); */
-    /* print_bit_array(state, max_alleles, 1); */
     for (mutation_index = 0; mutation_index < site->mutations_length; mutation_index++) {
         mutation = site->mutations[mutation_index];
         /* Compute the allele index for this derived state value. */
@@ -133,8 +117,6 @@ get_allele_samples(const tsk_site_t *site, const tsk_size_t num_sample_chunks,
         allele_samples_row = GET_2D_ROW(allele_samples, num_sample_chunks, allele);
         state_row = GET_2D_ROW(state, num_sample_chunks, mutation_index);
         add_bit_arrays(allele_samples_row, state_row, num_sample_chunks);
-        /* printf(" add %lu ", allele); */
-        /* print_bit_array(allele_samples, max_alleles, 1); */
 
         /* Get the index for the alternate allele that we must substract from */
         alt_allele = site->ancestral_state;
@@ -158,8 +140,6 @@ get_allele_samples(const tsk_site_t *site, const tsk_size_t num_sample_chunks,
         alt_allele_samples_row = GET_2D_ROW(allele_samples, num_sample_chunks, allele);
         subtract_bit_arrays(
             alt_allele_samples_row, allele_samples_row, num_sample_chunks);
-        /* printf(" sub %lu ", allele); */
-        /* print_bit_array(allele_samples, max_alleles, 1); */
     }
 out:
     tsk_safe_free(alleles);
@@ -202,6 +182,7 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     tsk_bit_array_t *mut_samples
         = tsk_calloc(num_mutations * num_sample_chunks, sizeof(*mut_samples));
 
+    // Stores the first and current node for a given mutation.
     tsk_id_t *first_curr_node = tsk_malloc(num_mutations * 2 * sizeof(*first_curr_node));
     // Sentinel value is -2 instead of -1
     tsk_memset(first_curr_node, 0xfe, num_mutations * 2 * sizeof(*first_curr_node));
@@ -212,29 +193,28 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     stack[stack_top] = parent[top_mut_node];
 
     tsk_id_t node;
-    tsk_id_t *row;
+    tsk_id_t *fc_row;
     while (stack_top >= 0) {
         node = stack[stack_top];
         stack_top--;
-        /* printf("N- %d\n", node); */
         for (tsk_size_t m = 0; m < num_mutations; m++) {
             // TODO: rename row to something better
-            row = GET_2D_ROW(first_curr_node, 2, m);
+            fc_row = GET_2D_ROW(first_curr_node, 2, m);
             mut_samples_row = GET_2D_ROW(mut_samples, num_sample_chunks, m);
             if (mut_nodes[m + *mut_offset] == node) {
-                row[0] = node;
+                fc_row[0] = node;
                 if (flags[node] & TSK_NODE_IS_SAMPLE) {
                     add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
                 }
             }
-            if (row[0] != -2) { // TODO: consider another sentinel value
-                if (row[1] == parent[node] || row[1] == left_sib[node]) {
-                    row[1] = node;
+            if (fc_row[0] != -2) { // TODO: consider another sentinel value
+                if (fc_row[1] == parent[node] || fc_row[1] == left_sib[node]) {
+                    fc_row[1] = node;
                     if (flags[node] & TSK_NODE_IS_SAMPLE) {
                         add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
                     }
-                } else if (row[0] == parent[node]) {
-                    row[1] = node;
+                } else if (fc_row[0] == parent[node]) {
+                    fc_row[1] = node;
                     if (flags[node] & TSK_NODE_IS_SAMPLE) {
                         add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
                     }
@@ -266,9 +246,6 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
         get_allele_samples(site, num_sample_chunks, mut_samples_row, out_row,
             &(*num_alleles)[site->id]);
     }
-
-    /* printf("tree %lu \n", tree_index); */
-    /* print_bit_array(mut_samples, num_mutations * num_sample_chunks, 1); */
 
     return 0;
 }
@@ -362,21 +339,20 @@ two_locus_stat(tsk_treeseq_t *self)
             tk++;
             u = edge_child[h];
             v = edge_parent[h];
+
             if (left_sib[u] != TSK_NULL) {
                 right_sib[left_sib[u]] = right_sib[u];
             }
+
             if (right_sib[u] == TSK_NULL) {
                 right_child[v] = left_sib[u];
             } else {
                 left_sib[right_sib[u]] = left_sib[u];
             }
 
-            left_sib[u] = -1;
-            right_sib[u] = -1;
-            parent[u] = -1;
-            /* printf("removed h = %d; p = %d; c = %d ", h, edge_parent[h],
-             * edge_child[h]); */
-            /* PRINT_ARRAY_GENERIC(right_child, (int) num_nodes, "%d", 1); */
+            left_sib[u] = TSK_NULL;
+            right_sib[u] = TSK_NULL;
+            parent[u] = TSK_NULL;
         }
         while (tj < num_edges && edge_left[edges_in[tj]] == t_left) {
             h = edges_in[tj];
@@ -387,18 +363,15 @@ two_locus_stat(tsk_treeseq_t *self)
 
             c = right_child[v];
             if (c == TSK_NULL) {
-                left_sib[u] = -1;
-                right_sib[u] = -1;
+                left_sib[u] = TSK_NULL;
+                right_sib[u] = TSK_NULL;
             } else {
                 right_sib[c] = u;
                 left_sib[u] = c;
-                right_sib[u] = -1;
+                right_sib[u] = TSK_NULL;
             }
-            right_child[v] = u;
 
-            /* printf("added h = %d; p = %d; c = %d ", h, edge_parent[h], edge_child[h]);
-             */
-            /* PRINT_ARRAY_GENERIC(right_child, (int) num_nodes, "%d", 1); */
+            right_child[v] = u;
         }
         t_right = sequence_length;
         if (tj < num_edges) {
@@ -408,20 +381,12 @@ two_locus_stat(tsk_treeseq_t *self)
             t_right = TSK_MIN(t_right, edge_right[edges_out[tk]]);
         }
 
-        /* printf("tree %lu\n", tree_index); */
-        /* PRINT_ARRAY_GENERIC(parent, (int) num_nodes, "%d", 1); */
-        /* PRINT_ARRAY_GENERIC(right_child, (int) num_nodes, "%d", 1); */
-        /* PRINT_ARRAY_GENERIC(left_sib, (int) num_nodes, "%d", 1); */
-        /* PRINT_ARRAY_GENERIC(right_sib, (int) num_nodes, "%d", 1); */
-        /* puts("--------"); */
         get_mutation_samples(self, tree_index, num_sample_chunks, right_child, left_sib,
             parent, &out_offset, &mut_offset, &mut_allele_samples, &num_alleles);
 
         tree_index++;
         t_left = t_right;
     }
-    /* puts("final"); */
-    /* print_bit_array(mut_allele_samples, total_alleles * num_sample_chunks, 1); */
 
     // TODO: should free all unused arrays at this point.
     //       Maybe this should be inside of a function, then we call the below routine?
@@ -454,7 +419,6 @@ two_locus_stat(tsk_treeseq_t *self)
                     count_bit_array(AB_samples, num_sample_chunks, &w_AB);
                     count_bit_array(left_allele_samples, num_sample_chunks, &w_A);
                     count_bit_array(right_allele_samples, num_sample_chunks, &w_B);
-                    /* print_bit_array(AB_samples, 1, 0); */
                     w_Ab = w_A - w_AB;
                     w_aB = w_B - w_AB;
                     printf("%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n", s_0, s_1, m_0,
