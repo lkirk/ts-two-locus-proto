@@ -209,7 +209,7 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     tsk_id_t *stack = tsk_malloc((1 + self->num_samples + num_edges) * sizeof(*stack));
 
     stack_top = 0;
-    stack[stack_top] = top_mut_node;
+    stack[stack_top] = parent[top_mut_node];
 
     tsk_id_t node;
     tsk_id_t *row;
