@@ -28,3 +28,6 @@ int get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     tsk_size_t **num_alleles);
 
 int two_locus_stat(tsk_treeseq_t *self);
+
+void get_all_samples_bits(
+    tsk_bit_array_t *all_samples, tsk_size_t n, tsk_size_t n_chunks);

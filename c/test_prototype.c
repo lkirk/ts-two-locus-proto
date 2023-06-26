@@ -49,8 +49,43 @@ test_bit_array_union(void)
 
     puts("");
     for (int i = 0; i < 4; i++) {
-        printf("%u\n", result[i]);
         CU_ASSERT_EQUAL(result[i], truth_union[i]);
+    }
+}
+
+static void
+test_get_all_samples_bits(void)
+{
+    tsk_size_t num_samples;
+    tsk_size_t num_sample_chunks;
+
+    // number of samples does not fill the entire array
+    num_samples = 124;
+    num_sample_chunks = (num_samples >> BIT_ARRAY_CHUNK)
+                        + ((num_samples % BIT_ARRAY_NUM_BITS) ? 1 : 0);
+    CU_ASSERT_EQUAL(num_sample_chunks, 4);
+    tsk_bit_array_t result1[num_sample_chunks];
+    get_all_samples_bits(result1, num_samples, num_sample_chunks);
+
+    // NB: this test is valid for BIT_ARRAY_NUM_BITS = 32
+    tsk_bit_array_t truth1[4] = { 4294967295, 4294967295, 4294967295, 268435455 };
+    for (tsk_size_t i = 0; i < num_sample_chunks; i++) {
+        CU_ASSERT_EQUAL(result1[i], truth1[i]);
+    }
+
+    // number of samples is an exact multiple of the BIT_ARRAY_NUM_BITS
+    num_samples = 160;
+    num_sample_chunks = (num_samples >> BIT_ARRAY_CHUNK)
+                        + ((num_samples % BIT_ARRAY_NUM_BITS) ? 1 : 0);
+    CU_ASSERT_EQUAL(num_sample_chunks, 5);
+    tsk_bit_array_t result2[num_sample_chunks];
+    get_all_samples_bits(result2, num_samples, num_sample_chunks);
+
+    // NB: this test is valid for BIT_ARRAY_NUM_BITS = 32
+    tsk_bit_array_t truth2[5]
+        = { 4294967295, 4294967295, 4294967295, 4294967295, 4294967295 };
+    for (tsk_size_t i = 0; i < num_sample_chunks; i++) {
+        CU_ASSERT_EQUAL(result2[i], truth2[i]);
     }
 }
 
@@ -61,6 +96,7 @@ main(int argc, char **argv)
         { "test_sample_counting", test_sample_counting },
         { "test_add_to_bit_array", test_add_to_bit_array },
         { "test_bit_array_union", test_bit_array_union },
+        { "test_get_all_samples_bits", test_get_all_samples_bits },
         { NULL, NULL },
     };
     return test_main(tests, argc, argv);

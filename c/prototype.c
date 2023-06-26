@@ -278,10 +278,22 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
 /* { */
 /* } */
 
+// TODO: static inline, keeping as is for testing
+void
+get_all_samples_bits(tsk_bit_array_t *all_samples, tsk_size_t n, tsk_size_t n_chunks)
+{
+    const tsk_bit_array_t all = ~((tsk_bit_array_t) 0);
+    const tsk_bit_array_t remainder_samples = n % BIT_ARRAY_NUM_BITS;
+    all_samples[n_chunks - 1] = remainder_samples ? ~(all << remainder_samples) : all;
+    for (tsk_size_t i = 0; i < n_chunks - 1; i++) {
+        all_samples[i] = all;
+    }
+}
+
 int
 two_locus_stat(tsk_treeseq_t *self)
 {
-    tsk_size_t num_nodes = self->tables->nodes.num_rows;
+    const tsk_size_t num_nodes = self->tables->nodes.num_rows;
     const tsk_id_t num_edges = (tsk_id_t) self->tables->edges.num_rows;
     const tsk_id_t *restrict edges_in = self->tables->indexes.edge_insertion_order;
     const tsk_id_t *restrict edges_out = self->tables->indexes.edge_removal_order;
@@ -308,26 +320,17 @@ two_locus_stat(tsk_treeseq_t *self)
     double t_left, t_right;
     tsk_id_t tj, tk, h, u, v, c;
 
-    num_sample_chunks
-        = (num_samples >> BIT_ARRAY_CHUNK) + (num_samples % BIT_ARRAY_NUM_BITS) ? 1 : 0;
+    num_sample_chunks = (num_samples >> BIT_ARRAY_CHUNK)
+                        + ((num_samples % BIT_ARRAY_NUM_BITS) ? 1 : 0);
 
-    tsk_bit_array_t *mut_allele_samples
-        = tsk_calloc(total_alleles * num_sample_chunks, sizeof(*mut_allele_samples));
     // TODO: this could be smaller if we concatenated mut_allele segments after
     //       computing the number of alleles
+    // TODO: restrict?
+    tsk_bit_array_t *mut_allele_samples
+        = tsk_calloc(total_alleles * num_sample_chunks, sizeof(*mut_allele_samples));
 
-    int tmp = (int) num_sample_chunks - 1;
     tsk_bit_array_t all_samples_bits[num_sample_chunks];
-
-    // TODO: are these casts necessary?
-    all_samples_bits[tmp]
-        = ~(~((tsk_bit_array_t) 0)
-            << (num_samples % ((tsk_bit_array_t) 1 << BIT_ARRAY_CHUNK)));
-    tmp--;
-    while (tmp >= 0) {
-        all_samples_bits[tmp] = ~((tsk_bit_array_t) 0);
-        tmp--;
-    }
+    get_all_samples_bits(all_samples_bits, num_samples, num_sample_chunks);
 
     tsk_size_t *site_offsets
         = tsk_malloc(self->tables->sites.num_rows * sizeof(*site_offsets));
