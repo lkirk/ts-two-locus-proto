@@ -38,13 +38,13 @@ def get_state(ts):
     return state
 
 
-def compute_stat_and_weights(hap_mat, summary_func, polarized, norm_method):
+def compute_stat_and_weights(hap_mat, summary_func, polarized, norm_method, left_site, right_site):
     hap_mat = np.asarray(hap_mat)
 
     # number of samples
     n = hap_mat.sum()
     # number of B alleles, number of A alleles
-    n_b, n_a = hap_mat.shape
+    n_a, n_b = hap_mat.shape
 
     weights = np.zeros(hap_mat.shape)
     stats = np.zeros(hap_mat.shape)
@@ -52,22 +52,25 @@ def compute_stat_and_weights(hap_mat, summary_func, polarized, norm_method):
         for b_idx in range(1 if polarized else 0, n_b):
             # NB: the A, B indices are correct. We are representing A as columns and B as rows
             #     so the indexing looks funny, but it's not
-            w_AB = hap_mat[b_idx, a_idx]
-            w_Ab = hap_mat[:, a_idx].sum() - w_AB
-            w_aB = hap_mat[b_idx, :].sum() - w_AB
+            w_AB = hap_mat[a_idx, b_idx]
+            w_Ab = hap_mat[a_idx, :].sum() - w_AB
+            w_aB = hap_mat[:, b_idx].sum() - w_AB
 
-            stats[b_idx, a_idx] = summary_func(w_AB, w_Ab, w_aB, n)
+            stats[a_idx, b_idx] = summary_func(w_AB, w_Ab, w_aB, n)
 
+            print(
+                left_site, right_site, a_idx, b_idx, int(w_AB), int(w_Ab), int(w_aB), int(n), sep="\t"
+            )  # , summary_func(w_AB, w_Ab, w_aB, n), sep="\t")
             # create weights matrix
             if norm_method is NormMethod.HAP_WEIGHTED:
                 hap_freq = hap_mat / n
-                weights[b_idx, a_idx] = hap_freq[b_idx, a_idx]
+                weights[a_idx, b_idx] = hap_freq[a_idx, b_idx]
             elif norm_method is NormMethod.AF_WEIGHTED:
-                p_a = hap_mat.sum(0) / n
-                p_b = hap_mat.sum(1) / n
-                weights[b_idx, a_idx] = p_a[a_idx] * p_b[b_idx]
+                p_a = hap_mat.sum(1) / n
+                p_b = hap_mat.sum(0) / n
+                weights[a_idx, b_idx] = p_a[a_idx] * p_b[b_idx]
             elif norm_method is NormMethod.TOTAL:
-                weights[b_idx, a_idx] = 1 / ((n_a - (1 if polarized else 0)) * (n_b - (1 if polarized else 0)))
+                weights[a_idx, b_idx] = 1 / ((n_a - (1 if polarized else 0)) * (n_b - (1 if polarized else 0)))
 
     return stats, weights
 
@@ -80,10 +83,10 @@ def compute_two_site_general_stat(state, func, polarized, norm_method, debug=Fal
     for (l_idx, left), (r_idx, right) in combinations_with_replacement(enumerate(state), 2):
         # NB: the left, right / A, B indices are correct. We are representing
         #     A as columns and B as rows, so the indexing looks funny, but it's not
-        hap_mat = np.zeros((len(np.unique(right)), len(np.unique(left))))
+        hap_mat = np.zeros((np.max(left) + 1, np.max(right) + 1))
         for A_i, B_i in zip(left, right):
-            hap_mat[B_i, A_i] += 1
-        stats, weights = compute_stat_and_weights(hap_mat, func, polarized, norm)
+            hap_mat[A_i, B_i] += 1
+        stats, weights = compute_stat_and_weights(hap_mat, func, polarized, norm, l_idx, r_idx)
         if debug:
             print('hap_mat', hap_mat, 'stats', stats, 'weights', weights, "============", sep="\n")
         result[l_idx, r_idx] = (stats * weights).sum()
