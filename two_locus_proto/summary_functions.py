@@ -31,7 +31,8 @@ def r2(w_AB, w_Ab, w_aB, n):
     denom = p_A * p_B * (1 - p_A) * (1 - p_B)
 
     if denom == 0 and D_ == 0:
-        return np.nan
+        return 0.0
+        # return np.nan
 
     return (D_ * D_) / denom
 
@@ -62,7 +63,8 @@ def r(w_AB, w_Ab, w_aB, n):
     denom = p_A * p_B * (1 - p_A) * (1 - p_B)
 
     if denom == 0 and D_ == 0:
-        return np.nan
+        return 0
+        # return np.nan
 
     return D_ / np.sqrt(denom)
 
