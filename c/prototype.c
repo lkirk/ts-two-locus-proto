@@ -63,6 +63,20 @@ print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline)
     }
 }
 
+#define PRINT_ARRAY_GENERIC(a, len, format, newline)                                    \
+    do {                                                                                \
+        printf("[ ");                                                                   \
+        for (int i = 0; i < len; i++) {                                                 \
+            printf(format, a[i]);                                                       \
+            printf(", ");                                                               \
+        };                                                                              \
+        if (newline) {                                                                  \
+            puts("]");                                                                  \
+        } else {                                                                        \
+            printf("]");                                                                \
+        }                                                                               \
+    } while (0)
+
 // TODO: figure inspect pass by ref/value here
 static int
 get_allele_samples(const tsk_site_t *site, const tsk_size_t num_sample_chunks,
@@ -338,27 +352,28 @@ two_locus_stat(tsk_treeseq_t *self)
     tk = 0;
     t_left = 0;
     tree_index = 0;
+    // TODO: check for TSK_NULLs
     while (tj < num_edges || t_left < sequence_length) {
         while (tk < num_edges && edge_right[edges_out[tk]] == t_left) {
             h = edges_out[tk];
             tk++;
             u = edge_child[h];
             v = edge_parent[h];
-            while (v != TSK_NULL) {
-                if (left_sib[u] != TSK_NULL) {
-                    right_sib[left_sib[u]] = right_sib[u];
-                }
-                if (right_sib[u] == TSK_NULL) {
-                    right_child[v] = left_sib[u];
-                } else {
-                    left_sib[right_sib[u]] = left_sib[u];
-                }
-                left_sib[u] = -1;
-                right_sib[u] = -1;
-
-                v = parent[v];
+            if (left_sib[u] != TSK_NULL) {
+                right_sib[left_sib[u]] = right_sib[u];
             }
+            if (right_sib[u] == TSK_NULL) {
+                right_child[v] = left_sib[u];
+            } else {
+                left_sib[right_sib[u]] = left_sib[u];
+            }
+
+            left_sib[u] = -1;
+            right_sib[u] = -1;
             parent[u] = -1;
+            /* printf("removed h = %d; p = %d; c = %d ", h, edge_parent[h],
+             * edge_child[h]); */
+            /* PRINT_ARRAY_GENERIC(right_child, (int) num_nodes, "%d", 1); */
         }
         while (tj < num_edges && edge_left[edges_in[tj]] == t_left) {
             h = edges_in[tj];
@@ -367,20 +382,20 @@ two_locus_stat(tsk_treeseq_t *self)
             v = edge_parent[h];
             parent[u] = v;
 
-            while (v != TSK_NULL) {
-                c = right_child[v];
-                if (c == TSK_NULL) {
-                    left_sib[u] = -1;
-                    right_sib[u] = -1;
-                } else {
-                    right_sib[c] = u;
-                    left_sib[u] = c;
-                    right_sib[u] = -1;
-                }
-                right_child[v] = u;
-
-                v = parent[v];
+            c = right_child[v];
+            if (c == TSK_NULL) {
+                left_sib[u] = -1;
+                right_sib[u] = -1;
+            } else {
+                right_sib[c] = u;
+                left_sib[u] = c;
+                right_sib[u] = -1;
             }
+            right_child[v] = u;
+
+            /* printf("added h = %d; p = %d; c = %d ", h, edge_parent[h], edge_child[h]);
+             */
+            /* PRINT_ARRAY_GENERIC(right_child, (int) num_nodes, "%d", 1); */
         }
         t_right = sequence_length;
         if (tj < num_edges) {
@@ -390,6 +405,12 @@ two_locus_stat(tsk_treeseq_t *self)
             t_right = TSK_MIN(t_right, edge_right[edges_out[tk]]);
         }
 
+        /* printf("tree %lu\n", tree_index); */
+        /* PRINT_ARRAY_GENERIC(parent, (int) num_nodes, "%d", 1); */
+        /* PRINT_ARRAY_GENERIC(right_child, (int) num_nodes, "%d", 1); */
+        /* PRINT_ARRAY_GENERIC(left_sib, (int) num_nodes, "%d", 1); */
+        /* PRINT_ARRAY_GENERIC(right_sib, (int) num_nodes, "%d", 1); */
+        /* puts("--------"); */
         get_mutation_samples(self, tree_index, num_sample_chunks, right_child, left_sib,
             parent, &out_offset, &mut_offset, &mut_allele_samples, &num_alleles);
 
@@ -433,7 +454,8 @@ two_locus_stat(tsk_treeseq_t *self)
                     /* print_bit_array(AB_samples, 1, 0); */
                     w_Ab = w_A - w_AB;
                     w_aB = w_B - w_AB;
-                    printf("%lu\t%lu\t%lu\t%lu\n", w_AB, w_Ab, w_aB, self->num_samples);
+                    printf("%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n", s_0, s_1, m_0,
+                        m_1, w_AB, w_Ab, w_aB, self->num_samples);
                 }
             }
         }
