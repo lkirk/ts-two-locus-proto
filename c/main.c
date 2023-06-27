@@ -16,4 +16,5 @@ main(int argc, char **argv)
     tsk_treeseq_load(&ts, filename, 0);
 
     two_locus_stat(&ts);
+    tsk_treeseq_free(&ts);
 }

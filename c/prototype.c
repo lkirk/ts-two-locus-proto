@@ -154,21 +154,23 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     tsk_size_t *mut_offset, tsk_bit_array_t **mut_allele_samples,
     tsk_size_t **num_alleles)
 {
+    int ret = 0;
 
     const tsk_size_t num_edges = self->tables->edges.num_rows;
-    const tsk_flags_t *flags = self->tables->nodes.flags;
+    const tsk_flags_t *restrict flags = self->tables->nodes.flags;
     const tsk_size_t num_sites = self->tree_sites_length[tree_index];
-    const tsk_site_t *sites = self->tree_sites[tree_index];
-    const tsk_id_t *mut_nodes = self->tables->mutations.node;
-    const tsk_site_t *site;
+    const tsk_site_t *restrict sites = self->tree_sites[tree_index];
+    const tsk_id_t *restrict mut_nodes = self->tables->mutations.node;
+    const tsk_site_t *restrict site;
 
-    tsk_id_t u;
+    tsk_id_t u, node, top_mut_node, *fc_row, *first_curr_node, *stack;
+    tsk_bit_array_t *mut_samples, *mut_samples_row, *out_row;
+    tsk_size_t num_mutations, state_offset;
     int stack_top;
-    tsk_bit_array_t *mut_samples_row;
 
-    tsk_id_t top_mut_node = 0;
-    tsk_size_t num_mutations = 0;
-
+    // Get the number of mutations and the top mutation node
+    num_mutations = 0;
+    top_mut_node = 0;
     for (tsk_size_t s = 0; s < num_sites; s++) {
         site = &sites[s];
         for (tsk_size_t m = 0; m < site->mutations_length; m++) {
@@ -179,21 +181,23 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
         }
     }
 
-    tsk_bit_array_t *mut_samples
-        = tsk_calloc(num_mutations * num_sample_chunks, sizeof(*mut_samples));
+    mut_samples = tsk_calloc(num_mutations * num_sample_chunks, sizeof(*mut_samples));
+    first_curr_node = tsk_malloc(num_mutations * 2 * sizeof(*first_curr_node));
+    // Size of stack is derived from tsk_tree_get_size_bound
+    stack = tsk_malloc((1 + self->num_samples + num_edges) * sizeof(*stack));
 
-    // Stores the first and current node for a given mutation.
-    tsk_id_t *first_curr_node = tsk_malloc(num_mutations * 2 * sizeof(*first_curr_node));
+    if (stack == NULL || first_curr_node == NULL || mut_samples == NULL) {
+        ret = TSK_ERR_NO_MEMORY;
+        goto out;
+    }
+
     // Sentinel value is -2 instead of -1
     tsk_memset(first_curr_node, 0xfe, num_mutations * 2 * sizeof(*first_curr_node));
-
-    tsk_id_t *stack = tsk_malloc((1 + self->num_samples + num_edges) * sizeof(*stack));
 
     stack_top = 0;
     stack[stack_top] = parent[top_mut_node];
 
-    tsk_id_t node;
-    tsk_id_t *fc_row;
+    // Traverse the current tree, tracking which samples are under each mutation
     while (stack_top >= 0) {
         node = stack[stack_top];
         stack_top--;
@@ -229,16 +233,13 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
         }
     }
 
-    tsk_bit_array_t *out_row;
-    tsk_size_t state_offset = 0;
+    state_offset = 0;
     // TODO: get rid of the global offsets
     for (tsk_size_t s = 0; s < num_sites; s++) {
         site = &self->tree_sites[tree_index][s];
 
         mut_samples_row = GET_2D_ROW(mut_samples, num_sample_chunks, state_offset);
         state_offset += self->site_mutations_length[site->id];
-
-        /* printf("out_offset %lu\n", *out_offset); */
 
         out_row = GET_2D_ROW(*mut_allele_samples, num_sample_chunks, *out_offset);
         *out_offset += self->site_mutations_length[site->id] + 1;
@@ -247,7 +248,12 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
             &(*num_alleles)[site->id]);
     }
 
-    return 0;
+out:
+    tsk_safe_free(mut_samples);
+    tsk_safe_free(first_curr_node);
+    tsk_safe_free(stack);
+
+    return ret;
 }
 
 /* int */
@@ -387,6 +393,10 @@ two_locus_stat(tsk_treeseq_t *self)
         tree_index++;
         t_left = t_right;
     }
+    free(parent);
+    free(right_child);
+    free(left_sib);
+    free(right_sib);
 
     // TODO: should free all unused arrays at this point.
     //       Maybe this should be inside of a function, then we call the below routine?
@@ -428,6 +438,8 @@ two_locus_stat(tsk_treeseq_t *self)
         }
         inner++;
     }
-
+    tsk_safe_free(mut_allele_samples);
+    tsk_safe_free(site_offsets);
+    tsk_safe_free(num_alleles);
     return 0;
 }
