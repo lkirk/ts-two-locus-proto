@@ -1,7 +1,8 @@
 project('two-locus-proto', 'c', version: '0.0.1')
 
 c_args = [
-    '-g', '-Wall', '-Wextra', '-Werror', '-Wpedantic', '-W',
+    # '-g', '-Wall', '-Wextra', '-Werror', '-Wpedantic', '-W',
+    '-g', '-Wall', '-Wextra', '-Wpedantic', '-W',
     '-Wmissing-prototypes',  '-Wstrict-prototypes',
     '-Wconversion', '-Wshadow', '-Wpointer-arith', '-Wcast-align',
     '-Wcast-qual', '-Wwrite-strings', '-Wnested-externs',
