@@ -21,9 +21,9 @@ main(int argc, char **argv)
     tsk_treeseq_load(&ts, filename, 0);
     // tsk_treeseq_print_state(&ts, stdout);
 
-    /* int num_sample_sets = 4; */
-    /* tsk_id_t sample_sets[] = {0, 1, 2, 3, 4, 5, 4, 5, 6, 1, 2}; */
-    /* tsk_size_t sample_set_sizes[] = {3, 3, 3, 2}; */
+    tsk_size_t num_sample_sets = 4;
+    tsk_id_t sample_sets[] = { 0, 1, 2, 3, 4, 5, 4, 5, 6, 1, 2 };
+    tsk_size_t sample_set_sizes[] = { 3, 3, 3, 2 };
 
     // --
 
@@ -36,10 +36,9 @@ main(int argc, char **argv)
 
     /* /\* double *pi = calloc(num_sample_sets, sizeof(double)); *\/ */
 
-    /* double pi[num_sample_sets]; */
-    /* int ret = tsk_treeseq_diversity( */
-    /*     &ts, num_sample_sets, sample_set_sizes, sample_sets, 0, NULL, TSK_STAT_SITE,
-     * pi); */
+    double pi[num_sample_sets];
+    int ret = tsk_treeseq_diversity(
+        &ts, num_sample_sets, sample_set_sizes, sample_sets, 0, NULL, TSK_STAT_SITE, pi);
 
     // --
 
@@ -49,29 +48,37 @@ main(int argc, char **argv)
     /* double r2; */
     /* int ret = tsk_ld_calc_get_r2(&ld_calc, 0, 26, &r2); */
 
-    tsk_tree_t tree;
-    int ret;
-    ret = tsk_tree_init(&tree, &ts, TSK_TS_INIT_BUILD_INDEXES | TSK_NO_SAMPLE_COUNTS);
+    /* // ------------------------------------ */
+    /* tsk_tree_t tree; */
+    /* int ret; */
+    /* ret = tsk_tree_init(&tree, &ts, TSK_TS_INIT_BUILD_INDEXES | TSK_NO_SAMPLE_COUNTS);
+     */
+    /* if (ret != 0) { */
+    /*     puts(tsk_strerror(ret)); */
+    /*     exit(1); */
+    /* } */
+
+    /* ret = tsk_tree_first(&tree); */
+    /* if (ret != TSK_TREE_OK) { */
+    /*     puts(tsk_strerror(ret)); */
+    /*     exit(1); */
+    /* } */
+    /* puts("tree 0"); */
+    /* ret = tsk_tree_next(&tree); */
+    /* puts("tree 1"); */
+    /* ret = tsk_tree_next(&tree); */
+    /* puts("tree 2"); */
+    /* ret = tsk_tree_next(&tree); */
+    /* puts("tree 3"); */
+    /* ret = tsk_tree_next(&tree); */
+
+    /* if (ret != TSK_TREE_OK) { */
+    /*     puts(tsk_strerror(ret)); */
+    /*     exit(1); */
+    /* } */
+    /* // ------------------------------------ */
+
     if (ret != 0) {
-        puts(tsk_strerror(ret));
-        exit(1);
-    }
-
-    ret = tsk_tree_first(&tree);
-    if (ret != TSK_TREE_OK) {
-        puts(tsk_strerror(ret));
-        exit(1);
-    }
-    puts("tree 0");
-    ret = tsk_tree_next(&tree);
-    puts("tree 1");
-    ret = tsk_tree_next(&tree);
-    puts("tree 2");
-    ret = tsk_tree_next(&tree);
-    puts("tree 3");
-    ret = tsk_tree_next(&tree);
-
-    if (ret != TSK_TREE_OK) {
         puts(tsk_strerror(ret));
         exit(1);
     }
