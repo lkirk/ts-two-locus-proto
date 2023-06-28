@@ -89,6 +89,29 @@ test_get_all_samples_bits(void)
     }
 }
 
+static void
+test_sample_weights_to_bit_array(void)
+{
+    double weights[32] = { 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0,
+        1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 };
+    tsk_size_t num_sample_sets = 4;
+    tsk_size_t num_samples = 8;
+    tsk_size_t num_sample_chunks = 1;
+    tsk_bit_array_t *sample_bits
+        = tsk_calloc(num_sample_chunks * num_sample_sets, sizeof(*sample_bits));
+    double *total_weight = tsk_calloc(num_sample_sets, sizeof(*total_weight));
+    tsk_bit_array_t bits_truth[4] = { 7, 56, 112, 6 };
+    double total_truth[4] = { 3, 3, 3, 2 };
+    sample_weights_to_bit_array(weights, num_sample_sets, num_samples, num_sample_chunks,
+        &total_weight, &sample_bits);
+    for (tsk_size_t i = 0; i < num_sample_sets * num_sample_chunks; i++) {
+        CU_ASSERT_EQUAL(sample_bits[i], bits_truth[i]);
+    }
+    for (tsk_size_t i = 0; i < num_sample_sets; i++) {
+        CU_ASSERT_EQUAL(total_weight[i], total_truth[i]);
+    }
+}
+
 int
 main(int argc, char **argv)
 {
@@ -97,6 +120,7 @@ main(int argc, char **argv)
         { "test_add_to_bit_array", test_add_to_bit_array },
         { "test_bit_array_union", test_bit_array_union },
         { "test_get_all_samples_bits", test_get_all_samples_bits },
+        { "test_sample_weights_to_bit_array", test_sample_weights_to_bit_array },
         { NULL, NULL },
     };
     return test_main(tests, argc, argv);
