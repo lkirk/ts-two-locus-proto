@@ -2,7 +2,6 @@
 #include <string.h>
 
 #include "prototype.h"
-#include "tskit/core.h"
 
 typedef int(summary_func)(tsk_size_t, const double *, tsk_size_t, double *, void *);
 

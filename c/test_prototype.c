@@ -38,18 +38,18 @@ test_add_to_bit_array(void)
 }
 
 static void
-test_bit_array_union(void)
+test_bit_array_intersect(void)
 {
     tsk_bit_array_t a[4] = { 4294967295, 4294967295, 67108863, 0 };
     tsk_bit_array_t b[4] = { 0, 0, 4294901760, 15 };
-    tsk_bit_array_t truth_union[4] = { 0, 0, 67043328, 0 };
+    tsk_bit_array_t truth_intersect[4] = { 0, 0, 67043328, 0 };
 
     tsk_bit_array_t result[4];
-    union_bit_array(a, b, result, 4);
+    intersect_bit_array(a, b, result, 4);
 
     puts("");
     for (int i = 0; i < 4; i++) {
-        CU_ASSERT_EQUAL(result[i], truth_union[i]);
+        CU_ASSERT_EQUAL(result[i], truth_intersect[i]);
     }
 }
 
@@ -118,7 +118,7 @@ main(int argc, char **argv)
     CU_TestInfo tests[] = {
         { "test_sample_counting", test_sample_counting },
         { "test_add_to_bit_array", test_add_to_bit_array },
-        { "test_bit_array_union", test_bit_array_union },
+        { "test_bit_array_intersect", test_bit_array_intersect },
         { "test_get_all_samples_bits", test_get_all_samples_bits },
         { "test_sample_weights_to_bit_array", test_sample_weights_to_bit_array },
         { NULL, NULL },

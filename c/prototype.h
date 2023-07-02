@@ -11,7 +11,7 @@ typedef uint32_t tsk_bit_array_t;
 #define TSK_AF_WEIGHTED (1 << 14)
 #define TSK_TOTAL_WEIGHTED (1 << 15)
 
-void union_bit_array(const tsk_bit_array_t *a, const tsk_bit_array_t *b,
+void intersect_bit_array(const tsk_bit_array_t *a, const tsk_bit_array_t *b,
     tsk_bit_array_t *out, const tsk_size_t len);
 
 void subtract_bit_arrays(

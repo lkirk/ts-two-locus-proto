@@ -2,12 +2,10 @@
 #include <stdlib.h>
 
 #include "prototype.h"
-#include "tskit/core.h"
 
 void
-// TODO: rename to intersect_bit_array
-union_bit_array(const tsk_bit_array_t *a, const tsk_bit_array_t *b, tsk_bit_array_t *out,
-    const tsk_size_t len)
+intersect_bit_array(const tsk_bit_array_t *a, const tsk_bit_array_t *b,
+    tsk_bit_array_t *out, const tsk_size_t len)
 {
     for (tsk_size_t i = 0; i < len; i++) {
         out[i] = a[i] & b[i];
@@ -363,14 +361,15 @@ compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset
         for (tsk_size_t mut_2 = polarised_val; mut_2 < num_alleles[site_2]; mut_2++) {
             A_samples = GET_2D_ROW(state, num_sample_chunks, site_1_offset + mut_1);
             B_samples = GET_2D_ROW(state, num_sample_chunks, site_2_offset + mut_2);
-            union_bit_array(A_samples, B_samples, AB_samples, num_sample_chunks);
+            intersect_bit_array(A_samples, B_samples, AB_samples, num_sample_chunks);
             for (tsk_size_t k = 0; k < state_dim; k++) {
                 ss_row = GET_2D_ROW(sample_sets, num_sample_chunks, k);
                 hap_weight_row = GET_2D_ROW(hap_weights, 3, k);
 
-                union_bit_array(A_samples, ss_row, ss_A_samples, num_sample_chunks);
-                union_bit_array(B_samples, ss_row, ss_B_samples, num_sample_chunks);
-                union_bit_array(AB_samples, ss_row, ss_AB_samples, num_sample_chunks);
+                intersect_bit_array(A_samples, ss_row, ss_A_samples, num_sample_chunks);
+                intersect_bit_array(B_samples, ss_row, ss_B_samples, num_sample_chunks);
+                intersect_bit_array(
+                    AB_samples, ss_row, ss_AB_samples, num_sample_chunks);
 
                 count_bit_array(ss_AB_samples, num_sample_chunks, &w_AB);
                 count_bit_array(ss_A_samples, num_sample_chunks, &w_A);
