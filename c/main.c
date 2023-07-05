@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -47,6 +48,27 @@ pick_norm_strategy(const char *func_name)
     return 0;
 }
 
+static bool
+pick_polarisation(const char *func_name)
+{
+    if (!strcmp(func_name, "D")) {
+        return true;
+    } else if (!strcmp(func_name, "D2")) {
+        return false;
+    } else if (!strcmp(func_name, "r2")) {
+        return false;
+    } else if (!strcmp(func_name, "D_prime")) {
+        return true;
+    } else if (!strcmp(func_name, "r")) {
+        return true;
+    } else if (!strcmp(func_name, "Dz")) {
+        return false;
+    } else if (!strcmp(func_name, "pi2")) {
+        return false;
+    }
+    return false;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -65,6 +87,9 @@ main(int argc, char **argv)
 
     tsk_flags_t options = 0;
     options |= pick_norm_strategy(argv[1]);
+    if (pick_polarisation(argv[1])) {
+        options |= TSK_STAT_POLARISED;
+    }
 
     tsk_treeseq_t ts;
     tsk_treeseq_load(&ts, filename, 0);
