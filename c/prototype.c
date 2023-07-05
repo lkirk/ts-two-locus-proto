@@ -258,45 +258,48 @@ out:
 
 static int
 norm_hap_weighted(tsk_size_t state_dim, const double *hap_weights,
-    const double *total_weight, double *result)
+    tsk_size_t TSK_UNUSED(n_a), tsk_size_t TSK_UNUSED(n_b), double *result, void *params)
 {
-    int ret = 0;
+    sample_count_stat_params_t args = *(sample_count_stat_params_t *) params;
     const double *weight_row;
+    double n;
     for (tsk_size_t k = 0; k < state_dim; k++) {
         weight_row = GET_2D_ROW(hap_weights, 3, k);
-        // TODO: what to do when total_weight[k] = 0
-        result[k] = (weight_row[0] / total_weight[k]);
+        n = (double) args.sample_set_sizes[k];
+        // TODO: what to do when n = 0
+        result[k] = weight_row[0] / n;
     }
-    return ret;
+    return 0;
 }
 
 static int
 norm_af_weighted(tsk_size_t state_dim, const double *hap_weights,
-    const double *total_weight, double *result)
+    tsk_size_t TSK_UNUSED(n_a), tsk_size_t TSK_UNUSED(n_b), double *result, void *params)
 {
-    int ret = 0;
+    sample_count_stat_params_t args = *(sample_count_stat_params_t *) params;
     const double *weight_row;
     double p_A;
     double p_B;
+    double n;
     for (tsk_size_t k = 0; k < state_dim; k++) {
         weight_row = GET_2D_ROW(hap_weights, 3, k);
-        // TODO: what to do when total_weight[k] = 0
-        p_A = (weight_row[0] + weight_row[1]) / total_weight[k];
-        p_B = (weight_row[0] + weight_row[2]) / total_weight[k];
+        n = (double) args.sample_set_sizes[k];
+        // TODO: what to do when n = 0
+        p_A = (weight_row[0] + weight_row[1]) / n;
+        p_B = (weight_row[0] + weight_row[2]) / n;
         result[k] = p_A * p_B;
     }
-    return ret;
+    return 0;
 }
 
 static int
 norm_total_weighted(tsk_size_t state_dim, const double *TSK_UNUSED(hap_weights),
-    const double *total_weight, double *result)
+    tsk_size_t n_a, tsk_size_t n_b, double *result, void *TSK_UNUSED(params))
 {
-    int ret = 0;
     for (tsk_size_t k = 0; k < state_dim; k++) {
-        result[k] = 1 / total_weight[k];
+        result[k] = 1 / (double) (n_a * n_b);
     }
-    return ret;
+    return 0;
 }
 
 // TODO: static inline, keeping as is for testing
@@ -337,7 +340,7 @@ compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset
     const tsk_size_t *num_alleles, const tsk_bit_array_t *state, tsk_size_t state_dim,
     tsk_bit_array_t *sample_sets, tsk_size_t result_dim, general_stat_func_t *f,
     void *f_params, norm_func_t *norm_func, const double *total_weight, bool polarised,
-    tsk_flags_t options, double *result)
+    tsk_flags_t TSK_UNUSED(options), double *result)
 {
     int ret = 0;
     const tsk_bit_array_t *A_samples, *B_samples;
@@ -387,7 +390,8 @@ compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset
             if (ret != 0) {
                 goto out;
             }
-            ret = norm_func(state_dim, hap_weights, total_weight, hap_norm);
+            ret = norm_func(state_dim, hap_weights, num_alleles[site_1] - polarised_val,
+                num_alleles[site_1] - polarised_val, hap_norm, f_params);
             if (ret != 0) {
                 goto out;
             }
@@ -515,8 +519,8 @@ out:
 int
 two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     const double *sample_weights, tsk_size_t result_dim, general_stat_func_t *f,
-    void *f_params, tsk_size_t num_windows, const double *windows, tsk_flags_t options,
-    double **result)
+    void *f_params, tsk_size_t TSK_UNUSED(num_windows),
+    const double *TSK_UNUSED(windows), tsk_flags_t options, double **result)
 {
     int ret = 0;
     const tsk_size_t num_sites = self->tables->sites.num_rows;
@@ -608,6 +612,15 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
         inner++;
     }
 
+    printf("result ");
+    for (tsk_size_t i = 0; i < num_stat; i++) {
+        printf("%.18f", (*result)[i]);
+        if (i != num_stat - 1) {
+            printf(",");
+        } else {
+            printf("\n");
+        }
+    }
 out:
     if (mut_allele_samples != NULL) {
         free(mut_allele_samples);

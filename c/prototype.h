@@ -25,8 +25,8 @@ void count_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t 
 
 void print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline);
 
-typedef int norm_func_t(tsk_size_t state_dim, const double *hap_weights,
-    const double *total_weight, double *result);
+typedef int norm_func_t(tsk_size_t state_dim, const double *hap_weights, tsk_size_t n_a,
+    tsk_size_t n_b, double *result, void *params);
 
 int get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     const tsk_size_t num_sample_chunks, const tsk_id_t *right_child,
