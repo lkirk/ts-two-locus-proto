@@ -5,6 +5,8 @@
 typedef uint32_t tsk_bit_array_t;
 #define BIT_ARRAY_CHUNK ((tsk_bit_array_t) 5)
 #define BIT_ARRAY_NUM_BITS ((tsk_bit_array_t) 1 << BIT_ARRAY_CHUNK)
+#define BIT_ARRAY_NUM_CHUNKS(n)                                                         \
+    (((n) >> BIT_ARRAY_CHUNK) + (((n) % BIT_ARRAY_NUM_BITS) ? 1 : 0))
 
 #define GET_2D_ROW(array, row_len, row) (array + (((size_t) (row_len)) * (size_t) row))
 #define TSK_HAP_WEIGHTED (1 << 13)
@@ -24,6 +26,8 @@ void add_bit_to_bit_array(tsk_bit_array_t *a, const tsk_bit_array_t bit);
 void count_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t *c);
 
 void print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline);
+
+bool bit_in_array(const tsk_bit_array_t *a, const tsk_bit_array_t bit);
 
 typedef int norm_func_t(tsk_size_t state_dim, const double *hap_weights, tsk_size_t n_a,
     tsk_size_t n_b, double *result, void *params);

@@ -35,6 +35,42 @@ add_bit_to_bit_array(tsk_bit_array_t *a, const tsk_bit_array_t bit)
     a[i] |= (tsk_bit_array_t) 1 << (bit - (BIT_ARRAY_NUM_BITS * i));
 }
 
+void // Useful for debugging
+print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline)
+{
+    tsk_bit_array_t val;
+    printf("[ ");
+    for (tsk_bit_array_t i = 0; i < len; i++) {
+        for (tsk_bit_array_t j = 0; j < BIT_ARRAY_NUM_BITS; j++) {
+            val = j + (BIT_ARRAY_NUM_BITS * i);
+            if (bit_in_array(a, val)) {
+                printf("%u ", val);
+            }
+        }
+    }
+    if (newline) {
+        puts("]");
+    } else {
+        printf("]");
+    }
+}
+
+bool // TODO: unit test this one
+bit_in_array(const tsk_bit_array_t *a, const tsk_bit_array_t bit)
+{
+    tsk_bit_array_t i = bit >> BIT_ARRAY_CHUNK;
+    return a[i] & ((tsk_bit_array_t) 1 << (bit - (BIT_ARRAY_NUM_BITS * i)));
+}
+
+static bool
+node_in_array(tsk_bit_array_t *a, const tsk_id_t node)
+{
+    if (node == TSK_NULL) {
+        return false;
+    }
+    return bit_in_array(a, (tsk_bit_array_t) node);
+}
+
 void
 count_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, tsk_size_t *c)
 {
@@ -153,6 +189,7 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     const tsk_id_t *left_sib, const tsk_id_t *parent, tsk_size_t *out_offset,
     tsk_size_t *mut_offset, tsk_bit_array_t *restrict *mut_allele_samples,
     tsk_size_t *restrict *num_alleles)
+// TODO: the restricts here, not sure. Are the row declarations aliases? I think so.
 {
     int ret = 0;
 
@@ -163,9 +200,9 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     const tsk_id_t *restrict mut_nodes = self->tables->mutations.node;
     const tsk_site_t *restrict site;
 
-    tsk_id_t u, node, top_mut_node, *fc_row, *first_curr_node, *stack;
-    tsk_bit_array_t *mut_samples, *mut_samples_row, *out_row;
-    tsk_size_t num_mutations, state_offset;
+    tsk_id_t u, node, top_mut_node, *stack;
+    tsk_bit_array_t *mut_samples, *mut_samples_row, *node_paths, *path, *out_row;
+    tsk_size_t num_mutations, state_offset, num_nodes, num_node_chunks;
     int stack_top;
 
     // Get the number of mutations and the top mutation node
@@ -182,17 +219,18 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     }
 
     mut_samples = tsk_calloc(num_mutations * num_sample_chunks, sizeof(*mut_samples));
-    first_curr_node = tsk_malloc(num_mutations * 2 * sizeof(*first_curr_node));
+    num_nodes = tsk_treeseq_get_num_nodes(self);
+    num_node_chunks = BIT_ARRAY_NUM_CHUNKS(num_nodes);
+
+    node_paths = tsk_calloc(num_node_chunks * num_mutations, sizeof(*node_paths));
+
     // Size of stack is derived from tsk_tree_get_size_bound
     stack = tsk_malloc((1 + self->num_samples + num_edges) * sizeof(*stack));
 
-    if (stack == NULL || first_curr_node == NULL || mut_samples == NULL) {
+    if (stack == NULL || node_paths == NULL || mut_samples == NULL) {
         ret = TSK_ERR_NO_MEMORY;
         goto out;
     }
-
-    // Sentinel value is -2 instead of -1
-    tsk_memset(first_curr_node, 0xfe, num_mutations * 2 * sizeof(*first_curr_node));
 
     stack_top = 0;
     stack[stack_top] = parent[top_mut_node];
@@ -202,26 +240,18 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
         node = stack[stack_top];
         stack_top--;
         for (tsk_size_t m = 0; m < num_mutations; m++) {
-            // TODO: rename row to something better
-            fc_row = GET_2D_ROW(first_curr_node, 2, m);
+            path = GET_2D_ROW(node_paths, num_node_chunks, m);
             mut_samples_row = GET_2D_ROW(mut_samples, num_sample_chunks, m);
             if (mut_nodes[m + *mut_offset] == node) {
-                fc_row[0] = node;
+                add_bit_to_bit_array(path, (tsk_bit_array_t) node);
                 if (flags[node] & TSK_NODE_IS_SAMPLE) {
                     add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
                 }
             }
-            if (fc_row[0] != -2) { // TODO: consider another sentinel value
-                if (fc_row[1] == parent[node] || fc_row[1] == left_sib[node]) {
-                    fc_row[1] = node;
-                    if (flags[node] & TSK_NODE_IS_SAMPLE) {
-                        add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
-                    }
-                } else if (fc_row[0] == parent[node]) {
-                    fc_row[1] = node;
-                    if (flags[node] & TSK_NODE_IS_SAMPLE) {
-                        add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
-                    }
+            if (node_in_array(path, parent[node])) {
+                add_bit_to_bit_array(path, (tsk_bit_array_t) node);
+                if (flags[node] & TSK_NODE_IS_SAMPLE) {
+                    add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
                 }
             }
         }
@@ -232,9 +262,9 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
             u = left_sib[u];
         }
     }
-
     state_offset = 0;
     // TODO: get rid of the global offsets
+    // TODO: don't we only want to do this from the current site offset onwards??
     for (tsk_size_t s = 0; s < num_sites; s++) {
         site = &self->tree_sites[tree_index][s];
 
@@ -247,10 +277,9 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
         get_allele_samples(site, num_sample_chunks, mut_samples_row, out_row,
             &(*num_alleles)[site->id]);
     }
-
 out:
     tsk_safe_free(mut_samples);
-    tsk_safe_free(first_curr_node);
+    tsk_safe_free(node_paths);
     tsk_safe_free(stack);
 
     return ret;
@@ -526,8 +555,7 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     const tsk_size_t num_sites = self->tables->sites.num_rows;
     const tsk_size_t num_samples = self->num_samples;
     const tsk_size_t max_alleles = self->tables->mutations.num_rows + num_sites;
-    tsk_size_t num_sample_chunks = (num_samples >> BIT_ARRAY_CHUNK)
-                                   + ((num_samples % BIT_ARRAY_NUM_BITS) ? 1 : 0);
+    tsk_size_t num_sample_chunks = BIT_ARRAY_NUM_CHUNKS(num_samples);
     tsk_size_t *restrict site_offsets = tsk_malloc(num_sites * sizeof(*site_offsets));
     tsk_size_t *restrict num_alleles = tsk_malloc(num_sites * sizeof(*num_alleles));
     tsk_bit_array_t *restrict sample_sets
@@ -544,7 +572,8 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
 
     get_all_samples_bits(all_samples_bits, num_samples, num_sample_chunks);
 
-    // Initialize the mutation sample tracking with all samples in the ancestral allele
+    // Initialize the mutation sample tracking with all samples in the ancestral
+    // allele
     // TODO: rework this slightly to use the site offsets array
     tsk_bit_array_t *allele_samples_row;
     tsk_size_t num_muts_cumsum = 0;

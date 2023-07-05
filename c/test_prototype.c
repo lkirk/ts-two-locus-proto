@@ -61,8 +61,7 @@ test_get_all_samples_bits(void)
 
     // number of samples does not fill the entire array
     num_samples = 124;
-    num_sample_chunks = (num_samples >> BIT_ARRAY_CHUNK)
-                        + ((num_samples % BIT_ARRAY_NUM_BITS) ? 1 : 0);
+    num_sample_chunks = BIT_ARRAY_NUM_CHUNKS(num_samples);
     CU_ASSERT_EQUAL(num_sample_chunks, 4);
     tsk_bit_array_t result1[num_sample_chunks];
     get_all_samples_bits(result1, num_samples, num_sample_chunks);
@@ -75,8 +74,7 @@ test_get_all_samples_bits(void)
 
     // number of samples is an exact multiple of the BIT_ARRAY_NUM_BITS
     num_samples = 160;
-    num_sample_chunks = (num_samples >> BIT_ARRAY_CHUNK)
-                        + ((num_samples % BIT_ARRAY_NUM_BITS) ? 1 : 0);
+    num_sample_chunks = BIT_ARRAY_NUM_CHUNKS(num_samples);
     CU_ASSERT_EQUAL(num_sample_chunks, 5);
     tsk_bit_array_t result2[num_sample_chunks];
     get_all_samples_bits(result2, num_samples, num_sample_chunks);
