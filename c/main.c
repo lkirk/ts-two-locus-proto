@@ -127,4 +127,6 @@ main(int argc, char **argv)
     tsk_treeseq_free(&ts);
     tsk_safe_free(result);
     tsk_safe_free(sample_weights);
+
+    return ret;
 }
