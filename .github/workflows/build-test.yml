@@ -6,7 +6,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
-    - name: Cache conda
+    - name: cache conda
       uses: actions/cache@v2
       env:
         # Increase this value to reset cache if env yaml hasn't changed
