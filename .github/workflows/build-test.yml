@@ -17,8 +17,5 @@ jobs:
       working-directory: c
       shell: bash -el {0}
       run: |
-        python -c 'import tskit; print(tskit.__version__)'
-        # cat ~/.bashrc
-        # cat /home/runner/micromamba/etc/profile.d/micromamba.sh
-        # meson setup build
-        # ninja -C build test
+        meson setup build
+        ninja -C build test
