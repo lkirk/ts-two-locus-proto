@@ -16,7 +16,6 @@ jobs:
     - name: build and test
       working-directory: c
       run: |
-        echo $0
-        export
+        "$MAMBA_EXE" activate test
         meson setup build
         ninja -C build test
