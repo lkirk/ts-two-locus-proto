@@ -110,6 +110,17 @@ test_sample_weights_to_bit_array(void)
     }
 }
 
+static void
+test_bit_in_array(void)
+{
+    tsk_bit_array_t arr[2] = { 202, 2147483648 };
+    CU_ASSERT_TRUE(bit_in_array(arr, 1));
+    CU_ASSERT_TRUE(bit_in_array(arr, 3));
+    CU_ASSERT_TRUE(bit_in_array(arr, 6));
+    CU_ASSERT_TRUE(bit_in_array(arr, 7));
+    CU_ASSERT_TRUE(bit_in_array(arr, 63));
+}
+
 int
 main(int argc, char **argv)
 {
@@ -119,6 +130,7 @@ main(int argc, char **argv)
         { "test_bit_array_intersect", test_bit_array_intersect },
         { "test_get_all_samples_bits", test_get_all_samples_bits },
         { "test_sample_weights_to_bit_array", test_sample_weights_to_bit_array },
+        { "test_bit_in_array", test_bit_in_array },
         { NULL, NULL },
     };
     return test_main(tests, argc, argv);

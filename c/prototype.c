@@ -55,7 +55,7 @@ print_bit_array(const tsk_bit_array_t *a, const tsk_size_t len, int newline)
     }
 }
 
-bool // TODO: unit test this one
+bool
 bit_in_array(const tsk_bit_array_t *a, const tsk_bit_array_t bit)
 {
     tsk_bit_array_t i = bit >> BIT_ARRAY_CHUNK;
