@@ -10,6 +10,7 @@ jobs:
       with:
         micromamba-version: '1.3.1-0'
         environment-file: dev-conda-env.yml
+        environment-name: test
         init-shell: >-
           bash
         cache-environment: true
