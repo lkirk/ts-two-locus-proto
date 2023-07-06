@@ -18,6 +18,6 @@ jobs:
       working-directory: c
       shell: bash -eo pipefail {0}
       run: |
-        conda activate test
+        micromamba activate test
         meson setup build
         ninja -C build test
