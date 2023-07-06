@@ -125,6 +125,7 @@ dependencies:
   - matplotlib-base=3.7.1=py311h8597a09_0
   - matplotlib-inline=0.1.6=pyhd8ed1ab_0
   - mccabe=0.7.0=pyhd8ed1ab_0
+  - meson=1.1.1=pyhd8ed1ab_0
   - mpg123=1.31.3=hcb278e6_0
   - msgpack-python=1.0.5=py311ha3edf6b_0
   - munkres=1.0.7=py_1
@@ -135,6 +136,7 @@ dependencies:
   - nbformat=5.9.0=pyhd8ed1ab_0
   - ncurses=6.4=hcb278e6_0
   - nest-asyncio=1.5.6=pyhd8ed1ab_0
+  - ninja=1.11.1=h924138e_0
   - nspr=4.35=h27087fc_0
   - nss=3.89=he45b914_0
   - numcodecs=0.11.0=py311hcafe171_1
