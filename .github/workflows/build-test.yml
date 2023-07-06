@@ -18,6 +18,8 @@ jobs:
       working-directory: c
       shell: bash -eo pipefail {0}
       run: |
-        micromamba activate test
+        conda init bash
+        source /home/runner/.bashrc
+        conda activate test
         meson setup build
         ninja -C build test
