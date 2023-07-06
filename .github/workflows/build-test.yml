@@ -16,7 +16,9 @@ jobs:
     - name: build and test
       working-directory: c
       run: |
-        cat ~/.bashrc
-        cat /home/runner/micromamba/etc/profile.d/micromamba.sh
+        micromamba activate
+        python -c 'import tskit; print(tskit.__version__)'
+        # cat ~/.bashrc
+        # cat /home/runner/micromamba/etc/profile.d/micromamba.sh
         # meson setup build
         # ninja -C build test
