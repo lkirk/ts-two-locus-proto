@@ -17,5 +17,6 @@ jobs:
       working-directory: c
       run: |
         cat ~/.bashrc
+        cat /home/runner/micromamba/etc/profile.d/micromamba.sh
         # meson setup build
         # ninja -C build test
