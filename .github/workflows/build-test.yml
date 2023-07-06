@@ -19,16 +19,12 @@ jobs:
     - name: setup miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
-        activate-environment: test
         channels: conda-forge,bioconda
         environment-file: dev-conda-env.yml
-    - name: verify
-      run: |
-        conda info
-        conda list
     - name: build and test
       working-directory: c
       run: |
+        conda init bash
         conda activate test
         meson setup build
         ninja -C build test
