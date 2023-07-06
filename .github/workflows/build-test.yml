@@ -9,9 +9,7 @@ jobs:
     - name: setup miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
-        channels:
-          - conda-forge
-          - bioconda
+        channels: conda-forge,bioconda
         environment-file: dev-conda-env.yml
     - name: setup meson and ninja
       run:
