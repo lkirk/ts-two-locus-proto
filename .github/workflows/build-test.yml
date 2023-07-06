@@ -2,6 +2,7 @@ name: build and test c
 on: push
 jobs:
   build:
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - uses: mamba-org/setup-micromamba@v1
@@ -14,6 +15,7 @@ jobs:
         cache-environment: true
     - name: build and test
       working-directory: c
+      shell: bash -el {0}
       run: |
         python -c 'import tskit; print(tskit.__version__)'
         # cat ~/.bashrc
