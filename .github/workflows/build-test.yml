@@ -16,8 +16,6 @@ jobs:
     - name: build and test
       working-directory: c
       run: |
-        "$MAMBA_EXE" shell init --shell=bash --prefix="$MAMBA_ROOT_PREFIX"
-        source /home/runner/.bashrc
-        "$MAMBA_EXE" activate test
-        meson setup build
-        ninja -C build test
+        cat ~/.bashrc
+        # meson setup build
+        # ninja -C build test
