@@ -15,7 +15,8 @@ jobs:
         cache-environment: true
     - name: build and test
       working-directory: c
-      shell: bash -eo pipefail {0}
       run: |
+        echo $0
+        export
         meson setup build
         ninja -C build test
