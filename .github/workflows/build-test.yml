@@ -27,3 +27,8 @@ jobs:
       run: |
         meson setup -Db_coverage=true build
         ninja -C build test coverage
+    - name: save coverage report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coveragereport
+        path: /home/runner/work/ts-two-locus-proto/ts-two-locus-proto/c/build/meson-logs/coveragereport
