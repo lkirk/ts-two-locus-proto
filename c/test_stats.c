@@ -53,7 +53,7 @@ test_D(void)
     char tree_path[PATH_MAX];
     for (int i = 0; test_cases[i] != NULL; i++) {
         get_path_to_tree(test_cases[i], tree_path);
-        process_tree(D, tree_path);
+        process_tree(D, tree_path, false);
     }
 }
 
@@ -63,7 +63,7 @@ test_D2(void)
     char tree_path[PATH_MAX];
     for (int i = 0; test_cases[i] != NULL; i++) {
         get_path_to_tree(test_cases[i], tree_path);
-        process_tree(D2, tree_path);
+        process_tree(D2, tree_path, false);
     }
 }
 
@@ -73,7 +73,7 @@ test_r2(void)
     char tree_path[PATH_MAX];
     for (int i = 0; test_cases[i] != NULL; i++) {
         get_path_to_tree(test_cases[i], tree_path);
-        process_tree(r2, tree_path);
+        process_tree(r2, tree_path, false);
     }
 }
 
@@ -83,7 +83,7 @@ test_D_prime(void)
     char tree_path[PATH_MAX];
     for (int i = 0; test_cases[i] != NULL; i++) {
         get_path_to_tree(test_cases[i], tree_path);
-        process_tree(D_prime, tree_path);
+        process_tree(D_prime, tree_path, false);
     }
 }
 
@@ -93,7 +93,7 @@ test_r(void)
     char tree_path[PATH_MAX];
     for (int i = 0; test_cases[i] != NULL; i++) {
         get_path_to_tree(test_cases[i], tree_path);
-        process_tree(r, tree_path);
+        process_tree(r, tree_path, false);
     }
 }
 
@@ -103,7 +103,7 @@ test_Dz(void)
     char tree_path[PATH_MAX];
     for (int i = 0; test_cases[i] != NULL; i++) {
         get_path_to_tree(test_cases[i], tree_path);
-        process_tree(Dz, tree_path);
+        process_tree(Dz, tree_path, false);
     }
 }
 
@@ -113,7 +113,7 @@ test_pi2(void)
     char tree_path[PATH_MAX];
     for (int i = 0; test_cases[i] != NULL; i++) {
         get_path_to_tree(test_cases[i], tree_path);
-        process_tree(pi2, tree_path);
+        process_tree(pi2, tree_path, false);
     }
 }
 

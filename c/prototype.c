@@ -369,7 +369,7 @@ compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset
     const tsk_size_t *num_alleles, const tsk_bit_array_t *state, tsk_size_t state_dim,
     tsk_bit_array_t *sample_sets, tsk_size_t result_dim, general_stat_func_t *f,
     void *f_params, norm_func_t *norm_func, const double *total_weight, bool polarised,
-    tsk_flags_t TSK_UNUSED(options), double *result)
+    tsk_flags_t TSK_UNUSED(options), double *result, bool print_weights)
 {
     int ret = 0;
     const tsk_bit_array_t *A_samples, *B_samples;
@@ -411,9 +411,11 @@ compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset
                 hap_weight_row[1] = (double) (w_A - w_AB); // w_Ab
                 hap_weight_row[2] = (double) (w_B - w_AB); // w_aB
 
-                printf("%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n", site_1, site_2, mut_1,
-                    mut_2, w_AB, (tsk_size_t) hap_weight_row[1],
-                    (tsk_size_t) hap_weight_row[2], (tsk_size_t) total_weight[k]);
+                if (print_weights) {
+                    printf("%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n", site_1, site_2,
+                        mut_1, mut_2, w_AB, (tsk_size_t) hap_weight_row[1],
+                        (tsk_size_t) hap_weight_row[2], (tsk_size_t) total_weight[k]);
+                }
             }
             ret = f(state_dim, hap_weights, result_dim, result_tmp_row, f_params);
             if (ret != 0) {
@@ -549,7 +551,8 @@ int
 two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     const double *sample_weights, tsk_size_t result_dim, general_stat_func_t *f,
     void *f_params, tsk_size_t TSK_UNUSED(num_windows),
-    const double *TSK_UNUSED(windows), tsk_flags_t options, double **result)
+    const double *TSK_UNUSED(windows), tsk_flags_t options, double **result,
+    bool print_weights)
 {
     int ret = 0;
     const tsk_size_t num_sites = self->tables->sites.num_rows;
@@ -632,7 +635,7 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
             ret = compute_general_two_site_stat_result(site_1, site_1_offset, site_2,
                 site_2_offset, num_sample_chunks, num_alleles, mut_allele_samples,
                 state_dim, sample_bits, result_dim, f, f_params, norm_func, total_weight,
-                polarised, options, &((*result)[result_offset]));
+                polarised, options, &((*result)[result_offset]), print_weights);
             if (ret != 0) {
                 goto out;
             }
@@ -711,7 +714,8 @@ pick_polarisation(summary_func *func)
 }
 
 int
-process_tree(summary_func *summary_function, const char *tree_filename)
+process_tree(
+    summary_func *summary_function, const char *tree_filename, bool print_weights)
 {
     tsk_flags_t options = 0;
     options |= pick_norm_strategy(summary_function);
@@ -744,8 +748,9 @@ process_tree(summary_func *summary_function, const char *tree_filename)
         .sample_set_sizes = sample_set_sizes,
         .set_indexes = set_indexes };
 
-    int ret = two_site_general_stat(&ts, num_sample_sets, sample_weights,
-        num_sample_sets, summary_function, &args, 0, NULL, options, &result);
+    int ret
+        = two_site_general_stat(&ts, num_sample_sets, sample_weights, num_sample_sets,
+            summary_function, &args, 0, NULL, options, &result, print_weights);
 
     if (ret != 0) {
         puts(tsk_strerror(ret));

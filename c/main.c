@@ -1,6 +1,6 @@
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "prototype.h"
 
@@ -29,17 +29,36 @@ int
 main(int argc, char **argv)
 {
     char *filename;
-    if (argc != 3) {
-        printf("usage: %s <summary_func> <input_tree>\n", argv[0]);
+    summary_func *func;
+    bool print_weights = false;
+
+    if (argc < 3 || argc > 4) {
+        printf("usage: %s <summary_func> <input_tree> [print_weights]\n", argv[0]);
         exit(1);
     }
-    filename = argv[2];
 
-    summary_func *func = pick_summary_func(argv[1]);
+    filename = argv[2];
+    if (access(filename, F_OK) != 0) {
+        printf("ERROR: %s: File does not exist\n", filename);
+        exit(1);
+    }
+
+    func = pick_summary_func(argv[1]);
     if (!func) {
         printf("error: unknown summary function '%s'\n", argv[1]);
         exit(1);
     }
 
-    return process_tree(func, filename);
+    if (argc == 4) {
+        if (strlen(argv[3]) != 1 || (argv[3][0] != '0' && argv[3][0] != '1')) {
+            printf("error: acceptable values for print_weights are (0, 1), got %s\n",
+                argv[3]);
+            exit(1);
+        }
+        if (argv[3][0] == '1') {
+            print_weights = true;
+        }
+    }
+
+    return process_tree(func, filename, print_weights);
 }
