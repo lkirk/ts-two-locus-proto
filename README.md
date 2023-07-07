@@ -18,6 +18,10 @@ cd c
 meson setup build
 ```
 
+Note: if you don't have `ninja` or `meson` installed on your system, they are installed
+in the conda environment. You can source the conda environment to perform all actions
+in this codebase.
+
 ## Running Tests
 
 There are two test suites: a python and a c test suite for running the python
