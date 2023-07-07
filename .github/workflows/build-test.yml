@@ -1,4 +1,4 @@
-name: build and test c
+name: build and test
 on: push
 permissions:
   contents: write  # needed to deploy coverage
@@ -26,12 +26,16 @@ jobs:
         python -m ipykernel install --user --name gha-kernel
         papermill -p SAVE_PATH trees notebooks/TestCases.ipynb TestCases.ipynb -k gha-kernel
         ls -la trees
-    - name: build and test
+    - name: build and test c
       working-directory: c
       shell: bash -el {0}
       run: |
         meson setup -Db_coverage=true build
         ninja -C build test coverage
+    - name: build and test python
+      shell: bash -el {0}
+      run: |
+        pytest -v test
     - name: deploy code coverage
       uses: JamesIves/github-pages-deploy-action@v4
       with:
