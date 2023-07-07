@@ -1,8 +1,11 @@
 name: build and test c
 on: push
+permissions:
+  contents: write  # needed to deploy coverage
 jobs:
   build:
     runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }} # we might make multiple deployments in quick succession
     steps:
     - uses: actions/checkout@v3
     - name: install build deps
@@ -27,8 +30,12 @@ jobs:
       run: |
         meson setup -Db_coverage=true build
         ninja -C build test coverage
-    - name: save coverage report
-      uses: actions/upload-artifact@v3
+    - name: deploy code coverage
+      uses: JamesIves/github-pages-deploy-action@v4
       with:
-        name: coveragereport
-        path: /home/runner/work/ts-two-locus-proto/ts-two-locus-proto/c/build/meson-logs/coveragereport
+        folder: /home/runner/work/ts-two-locus-proto/ts-two-locus-proto/c/build/meson-logs/coveragereport
+    # - name: save coverage report
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: coveragereport
+    #     path: /home/runner/work/ts-two-locus-proto/ts-two-locus-proto/c/build/meson-logs/coveragereport
