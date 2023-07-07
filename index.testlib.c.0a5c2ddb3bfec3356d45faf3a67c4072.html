@@ -9,11 +9,12 @@
   </head>
 
   <body>
-    <h1>GCC Code Coverage Report</h1>
+    <header>
+      <h1>GCC Code Coverage Report</h1>
 
-    <hr/>
+      <hr/>
 
-    <div class="summary">
+      <div class="summary">
 <div>
   <table class="legend">
     <tr>
@@ -26,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-07-07 05:24:14</td>
+      <td>2023-07-07 16:50:14</td>
     </tr>
   </table>
 </div>
@@ -45,6 +46,12 @@
       <td class="coverage-low">36.7%</td>
     </tr>
     <tr>
+      <th scope="row">Functions:</th>
+      <td>1</td>
+      <td>2</td>
+      <td class="coverage-low">50.0%</td>
+    </tr>
+    <tr>
       <th scope="row">Branches:</th>
       <td>4</td>
       <td>14</td>
@@ -52,10 +59,47 @@
     </tr>
   </table>
 </div>
-    </div>
+      </div>
 
-    <hr/>
+      <hr/>
+    </header>
 
+    <nav>
+<details>
+  <summary>List of functions</summary>
+  <table class="listOfFunctions">
+    <tr>
+      <th>Function</th>
+      <th>Line</th>
+      <th>Call count</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l4">handle_cunit_error</a>
+      </td>
+      <td>
+        <a href="#l4">4</a>
+      </td>
+      <td>
+        <a href="#l4"> not called</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l11">test_main</a>
+      </td>
+      <td>
+        <a href="#l11">11</a>
+      </td>
+      <td>
+        <a href="#l11"> called 2 times</a>
+      </td>
+    </tr>
+  </table>
+</details>
+    </nav>
+
+    <main>
 <div class="file-source">
   <table>
     <tr>
@@ -71,7 +115,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;testlib.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;testlib.h&quot;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -87,7 +131,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -95,7 +139,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="nf">handle_cunit_error</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="nf">handle_cunit_error</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -103,7 +147,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -111,7 +155,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;CUnit error occured: %d: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">CU_get_error</span><span class="p">(),</span><span class="w"> </span><span class="n">CU_get_error_msg</span><span class="p">());</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;CUnit error occured: %d: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">CU_get_error</span><span class="p">(),</span><span class="w"> </span><span class="n">CU_get_error_msg</span><span class="p">());</span></td>
     </tr>
 
     <tr class="source-line">
@@ -119,7 +163,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -127,7 +171,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -143,7 +187,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int</span><span class="w"></span></td>
+      <td class="src "><span class="kt">int</span></td>
     </tr>
 
     <tr class="source-line">
@@ -151,7 +195,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="nf">test_main</span><span class="p">(</span><span class="n">CU_TestInfo</span><span class="w"> </span><span class="o">*</span><span class="n">tests</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">test_main</span><span class="p">(</span><span class="n">CU_TestInfo</span><span class="w"> </span><span class="o">*</span><span class="n">tests</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -159,7 +203,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -167,7 +211,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -175,7 +219,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="n">CU_pTest</span><span class="w"> </span><span class="n">test</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="n">CU_pTest</span><span class="w"> </span><span class="n">test</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -183,7 +227,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="n">CU_pSuite</span><span class="w"> </span><span class="n">suite</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="n">CU_pSuite</span><span class="w"> </span><span class="n">suite</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -191,7 +235,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">CU_SuiteInfo</span><span class="w"> </span><span class="n">suites</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">CU_SuiteInfo</span><span class="w"> </span><span class="n">suites</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -199,7 +243,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -207,7 +251,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="p">.</span><span class="n">pName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;tskit-two-locus-prototype&quot;</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="p">.</span><span class="n">pName</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;tskit-two-locus-prototype&quot;</span><span class="p">,</span></td>
     </tr>
 
     <tr class="source-line">
@@ -215,7 +259,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="p">.</span><span class="n">pTests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tests</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="p">.</span><span class="n">pTests</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tests</span><span class="p">,</span></td>
     </tr>
 
     <tr class="source-line">
@@ -223,7 +267,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">},</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">},</span></td>
     </tr>
 
     <tr class="source-line">
@@ -231,7 +275,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="n">CU_SUITE_INFO_NULL</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="n">CU_SUITE_INFO_NULL</span><span class="p">,</span></td>
     </tr>
 
     <tr class="source-line">
@@ -239,7 +283,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">};</span></td>
     </tr>
 
     <tr class="source-line">
@@ -254,7 +298,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CUE_SUCCESS</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">CU_initialize_registry</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CUE_SUCCESS</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">CU_initialize_registry</span><span class="p">())</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -262,7 +306,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">handle_cunit_error</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">handle_cunit_error</span><span class="p">();</span></td>
     </tr>
 
     <tr class="source-line">
@@ -270,7 +314,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -285,7 +329,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CUE_SUCCESS</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">CU_register_suites</span><span class="p">(</span><span class="n">suites</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CUE_SUCCESS</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">CU_register_suites</span><span class="p">(</span><span class="n">suites</span><span class="p">))</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -293,7 +337,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">handle_cunit_error</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">handle_cunit_error</span><span class="p">();</span></td>
     </tr>
 
     <tr class="source-line">
@@ -301,7 +345,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -309,7 +353,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">CU_basic_set_mode</span><span class="p">(</span><span class="n">CU_BRM_VERBOSE</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">CU_basic_set_mode</span><span class="p">(</span><span class="n">CU_BRM_VERBOSE</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -332,7 +376,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">argc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">argc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -340,7 +384,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">CU_basic_run_tests</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">CU_basic_run_tests</span><span class="p">();</span></td>
     </tr>
 
     <tr class="source-line">
@@ -348,7 +392,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">argc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">argc</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -356,7 +400,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">suite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_get_suite_by_name</span><span class="p">(</span><span class="s">&quot;tskit-two-locus-prototype&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">CU_get_registry</span><span class="p">());</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">suite</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_get_suite_by_name</span><span class="p">(</span><span class="s">&quot;tskit-two-locus-prototype&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">CU_get_registry</span><span class="p">());</span></td>
     </tr>
 
     <tr class="source-line">
@@ -364,7 +408,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">suite</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">suite</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -372,7 +416,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Suite not found</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Suite not found</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -380,7 +424,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -388,7 +432,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -396,7 +440,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_get_test_by_name</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">suite</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">test</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CU_get_test_by_name</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="w"> </span><span class="n">suite</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -404,7 +448,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">test</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -412,7 +456,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Test &#39;%s&#39; not found</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Test &#39;%s&#39; not found</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -420,7 +464,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -428,7 +472,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -436,7 +480,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">CU_basic_run_test</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">CU_basic_run_test</span><span class="p">(</span><span class="n">suite</span><span class="p">,</span><span class="w"> </span><span class="n">test</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -444,7 +488,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -452,7 +496,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;usage: %s &lt;test_name&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;usage: %s &lt;test_name&gt;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -460,7 +504,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -468,7 +512,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -484,7 +528,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EXIT_SUCCESS</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -499,7 +543,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CU_get_number_of_tests_failed</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">CU_get_number_of_tests_failed</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -507,7 +551,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Test failed!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Test failed!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -515,7 +559,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">EXIT_FAILURE</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -523,7 +567,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -531,7 +575,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">CU_cleanup_registry</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">CU_cleanup_registry</span><span class="p">();</span></td>
     </tr>
 
     <tr class="source-line">
@@ -539,7 +583,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -547,7 +591,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -560,11 +604,11 @@
 
   </table>
 </div>
-
-    <hr/>
+      <hr/>
+    </main>
 
     <footer>
-      Generated by: <a href="http://gcovr.com">GCOVR (Version 5.0)</a>
+      Generated by: <a href="http://gcovr.com">GCOVR (Version 5.2)</a>
     </footer>
   </body>
 </html>

@@ -9,11 +9,12 @@
   </head>
 
   <body>
-    <h1>GCC Code Coverage Report</h1>
+    <header>
+      <h1>GCC Code Coverage Report</h1>
 
-    <hr/>
+      <hr/>
 
-    <div class="summary">
+      <div class="summary">
 <div>
   <table class="legend">
     <tr>
@@ -26,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-07-07 05:24:14</td>
+      <td>2023-07-07 16:50:14</td>
     </tr>
   </table>
 </div>
@@ -45,6 +46,12 @@
       <td class="coverage-high">91.1%</td>
     </tr>
     <tr>
+      <th scope="row">Functions:</th>
+      <td>10</td>
+      <td>10</td>
+      <td class="coverage-high">100.0%</td>
+    </tr>
+    <tr>
       <th scope="row">Branches:</th>
       <td>17</td>
       <td>20</td>
@@ -52,10 +59,135 @@
     </tr>
   </table>
 </div>
-    </div>
+      </div>
 
-    <hr/>
+      <hr/>
+    </header>
 
+    <nav>
+<details>
+  <summary>List of functions</summary>
+  <table class="listOfFunctions">
+    <tr>
+      <th>Function</th>
+      <th>Line</th>
+      <th>Call count</th>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l35">get_path_to_tree</a>
+      </td>
+      <td>
+        <a href="#l35">35</a>
+      </td>
+      <td>
+        <a href="#l35"> called 56 times</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l19">get_tree_dir</a>
+      </td>
+      <td>
+        <a href="#l19">19</a>
+      </td>
+      <td>
+        <a href="#l19"> called 56 times</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l121">main</a>
+      </td>
+      <td>
+        <a href="#l121">121</a>
+      </td>
+      <td>
+        <a href="#l121"> called 1 time</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l51">test_D</a>
+      </td>
+      <td>
+        <a href="#l51">51</a>
+      </td>
+      <td>
+        <a href="#l51"> called 1 time</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l61">test_D2</a>
+      </td>
+      <td>
+        <a href="#l61">61</a>
+      </td>
+      <td>
+        <a href="#l61"> called 1 time</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l81">test_D_prime</a>
+      </td>
+      <td>
+        <a href="#l81">81</a>
+      </td>
+      <td>
+        <a href="#l81"> called 1 time</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l101">test_Dz</a>
+      </td>
+      <td>
+        <a href="#l101">101</a>
+      </td>
+      <td>
+        <a href="#l101"> called 1 time</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l111">test_pi2</a>
+      </td>
+      <td>
+        <a href="#l111">111</a>
+      </td>
+      <td>
+        <a href="#l111"> called 1 time</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l91">test_r</a>
+      </td>
+      <td>
+        <a href="#l91">91</a>
+      </td>
+      <td>
+        <a href="#l91"> called 1 time</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l71">test_r2</a>
+      </td>
+      <td>
+        <a href="#l71">71</a>
+      </td>
+      <td>
+        <a href="#l71"> called 1 time</a>
+      </td>
+    </tr>
+  </table>
+</details>
+    </nav>
+
+    <main>
 <div class="file-source">
   <table>
     <tr>
@@ -71,7 +203,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -79,7 +211,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -87,7 +219,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;errno.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;errno.h&gt;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -95,7 +227,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;limits.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;limits.h&gt;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -103,7 +235,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -111,7 +243,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;unistd.h&gt;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -127,7 +259,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CUnit/Basic.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;CUnit/Basic.h&gt;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -143,7 +275,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;testlib.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;testlib.h&quot;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -151,7 +283,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;prototype.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;prototype.h&quot;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -167,7 +299,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">test_cases</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;case1.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case2.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case3.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case4.tree&quot;</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">test_cases</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;case1.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case2.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case3.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case4.tree&quot;</span><span class="p">,</span></td>
     </tr>
 
     <tr class="source-line">
@@ -175,7 +307,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="s">&quot;case5.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case6.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case7.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case11.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="s">&quot;case5.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case6.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case7.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;case11.tree&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="p">};</span></td>
     </tr>
 
     <tr class="source-line">
@@ -207,7 +339,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -215,7 +347,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="nf">get_tree_dir</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">get_tree_dir</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">path</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -223,7 +355,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -231,7 +363,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">res</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">res</span><span class="p">;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -239,7 +371,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">realpath</span><span class="p">(</span><span class="s">&quot;../trees&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">realpath</span><span class="p">(</span><span class="s">&quot;../trees&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -254,7 +386,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -270,7 +402,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">realpath</span><span class="p">(</span><span class="s">&quot;../../trees&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">realpath</span><span class="p">(</span><span class="s">&quot;../../trees&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -278,7 +410,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -293,7 +425,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">res</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -301,7 +433,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">err_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">err_str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -309,7 +441,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;ERROR: %s: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">err_str</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;ERROR: %s: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">path</span><span class="p">,</span><span class="w"> </span><span class="n">err_str</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -317,7 +449,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -325,7 +457,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -333,7 +465,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -349,7 +481,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -357,7 +489,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="nf">get_path_to_tree</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">get_path_to_tree</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">out</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -365,7 +497,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -373,7 +505,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_dir</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_dir</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span></td>
     </tr>
 
     <tr class="source-line">
@@ -389,7 +521,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">get_tree_dir</span><span class="p">(</span><span class="n">tree_dir</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">get_tree_dir</span><span class="p">(</span><span class="n">tree_dir</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -397,7 +529,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">strncpy</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">tree_dir</span><span class="p">,</span><span class="w"> </span><span class="n">PATH_MAX</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">strncpy</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">tree_dir</span><span class="p">,</span><span class="w"> </span><span class="n">PATH_MAX</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -405,7 +537,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">strncat</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PATH_MAX</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">strncat</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;/&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">PATH_MAX</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -413,7 +545,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">strncat</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">PATH_MAX</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">strncat</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">PATH_MAX</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -436,7 +568,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">access</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">F_OK</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">access</span><span class="p">(</span><span class="n">out</span><span class="p">,</span><span class="w"> </span><span class="n">F_OK</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -444,7 +576,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;ERROR: %s: File does not exist</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">out</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;ERROR: %s: File does not exist</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">out</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -452,7 +584,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -460,7 +592,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -468,7 +600,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">56</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -484,7 +616,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -492,7 +624,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="nf">test_D</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">test_D</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -500,7 +632,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -508,7 +640,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span></td>
     </tr>
 
     <tr class="source-line">
@@ -523,7 +655,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -531,7 +663,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -539,7 +671,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">D</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">D</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -547,7 +679,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -555,7 +687,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -571,7 +703,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -579,7 +711,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="nf">test_D2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">test_D2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -587,7 +719,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -595,7 +727,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span></td>
     </tr>
 
     <tr class="source-line">
@@ -610,7 +742,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -618,7 +750,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -626,7 +758,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">D2</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">D2</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -634,7 +766,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -642,7 +774,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -658,7 +790,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -666,7 +798,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="nf">test_r2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">test_r2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -674,7 +806,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -682,7 +814,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span></td>
     </tr>
 
     <tr class="source-line">
@@ -697,7 +829,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -705,7 +837,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -713,7 +845,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">r2</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">r2</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -721,7 +853,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -729,7 +861,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -745,7 +877,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -753,7 +885,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="nf">test_D_prime</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">test_D_prime</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -761,7 +893,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -769,7 +901,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span></td>
     </tr>
 
     <tr class="source-line">
@@ -784,7 +916,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -792,7 +924,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -800,7 +932,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">D_prime</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">D_prime</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -808,7 +940,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -816,7 +948,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -832,7 +964,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -840,7 +972,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="nf">test_r</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">test_r</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -848,7 +980,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -856,7 +988,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span></td>
     </tr>
 
     <tr class="source-line">
@@ -871,7 +1003,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -879,7 +1011,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -887,7 +1019,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">r</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -895,7 +1027,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -903,7 +1035,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -919,7 +1051,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -927,7 +1059,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="nf">test_Dz</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">test_Dz</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -935,7 +1067,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -943,7 +1075,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span></td>
     </tr>
 
     <tr class="source-line">
@@ -958,7 +1090,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -966,7 +1098,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -974,7 +1106,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">Dz</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">Dz</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -982,7 +1114,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -990,7 +1122,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1006,7 +1138,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"></span></td>
+      <td class="src "><span class="k">static</span><span class="w"> </span><span class="kt">void</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1014,7 +1146,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="nf">test_pi2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">test_pi2</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1022,7 +1154,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1030,7 +1162,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">tree_path</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1045,7 +1177,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1053,7 +1185,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">get_path_to_tree</span><span class="p">(</span><span class="n">test_cases</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1061,7 +1193,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">pi2</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">        </span><span class="n">process_tree</span><span class="p">(</span><span class="n">pi2</span><span class="p">,</span><span class="w"> </span><span class="n">tree_path</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1069,7 +1201,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1077,7 +1209,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1093,7 +1225,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int</span><span class="w"></span></td>
+      <td class="src "><span class="kt">int</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1101,7 +1233,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1109,7 +1241,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1117,7 +1249,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">CU_TestInfo</span><span class="w"> </span><span class="n">tests</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">CU_TestInfo</span><span class="w"> </span><span class="n">tests</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1125,7 +1257,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_D&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_D</span><span class="w"> </span><span class="p">},</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_D&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_D</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1133,7 +1265,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_D2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_D2</span><span class="w"> </span><span class="p">},</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_D2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_D2</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1141,7 +1273,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_r2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_r2</span><span class="w"> </span><span class="p">},</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_r2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_r2</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1149,7 +1281,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_D_prime&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_D_prime</span><span class="w"> </span><span class="p">},</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_D_prime&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_D_prime</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1157,7 +1289,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_r&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_r</span><span class="w"> </span><span class="p">},</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_r&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_r</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1165,7 +1297,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_Dz&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_Dz</span><span class="w"> </span><span class="p">},</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_Dz&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_Dz</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1173,7 +1305,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_pi2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_pi2</span><span class="w"> </span><span class="p">},</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="s">&quot;test_pi2&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">test_pi2</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1189,7 +1321,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="p">},</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="p">},</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1197,7 +1329,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">};</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1205,7 +1337,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">1</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">test_main</span><span class="p">(</span><span class="n">tests</span><span class="p">,</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">test_main</span><span class="p">(</span><span class="n">tests</span><span class="p">,</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1213,7 +1345,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="p">}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1226,11 +1358,11 @@
 
   </table>
 </div>
-
-    <hr/>
+      <hr/>
+    </main>
 
     <footer>
-      Generated by: <a href="http://gcovr.com">GCOVR (Version 5.0)</a>
+      Generated by: <a href="http://gcovr.com">GCOVR (Version 5.2)</a>
     </footer>
   </body>
 </html>
