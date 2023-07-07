@@ -13,6 +13,12 @@ jobs:
         init-shell: >-
           bash
         cache-environment: true
+    - name: generate test data
+      shell: bash -el {0}
+      run: |
+        python -m ipykernel install --user --name gha-kernel
+        papermill -p SAVE_PATH trees notebooks/TestCases.ipynb TestCases.ipynb -k gha-kernel
+        ls -la trees
     - name: build and test
       working-directory: c
       shell: bash -el {0}
