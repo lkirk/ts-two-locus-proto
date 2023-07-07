@@ -5,6 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: install build deps
+      run: sudo apt-get install -y gcovr
     - uses: mamba-org/setup-micromamba@v1
       with:
         micromamba-version: '1.3.1-0'
@@ -23,5 +25,5 @@ jobs:
       working-directory: c
       shell: bash -el {0}
       run: |
-        meson setup build
-        ninja -C build test
+        meson setup -Db_coverage=true build
+        ninja -C build test coverage
