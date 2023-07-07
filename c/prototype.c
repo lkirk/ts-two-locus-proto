@@ -667,3 +667,94 @@ out:
     tsk_safe_free(total_weight);
     return ret;
 }
+
+static tsk_flags_t
+pick_norm_strategy(summary_func *func)
+{
+    if (func == D) {
+        return TSK_TOTAL_WEIGHTED;
+    } else if (func == D2) {
+        return TSK_TOTAL_WEIGHTED;
+    } else if (func == r2) {
+        return TSK_HAP_WEIGHTED;
+    } else if (func == D_prime) {
+        return TSK_HAP_WEIGHTED;
+    } else if (func == r) {
+        return TSK_TOTAL_WEIGHTED;
+    } else if (func == Dz) {
+        return TSK_TOTAL_WEIGHTED;
+    } else if (func == pi2) {
+        return TSK_TOTAL_WEIGHTED;
+    }
+    return 0;
+}
+
+static bool
+pick_polarisation(summary_func *func)
+{
+    if (func == D) {
+        return true;
+    } else if (func == D2) {
+        return false;
+    } else if (func == r2) {
+        return false;
+    } else if (func == D_prime) {
+        return true;
+    } else if (func == r) {
+        return true;
+    } else if (func == Dz) {
+        return false;
+    } else if (func == pi2) {
+        return false;
+    }
+    return false;
+}
+
+int
+process_tree(summary_func *summary_function, const char *tree_filename)
+{
+    tsk_flags_t options = 0;
+    options |= pick_norm_strategy(summary_function);
+    if (pick_polarisation(summary_function)) {
+        options |= TSK_STAT_POLARISED;
+    }
+
+    tsk_treeseq_t ts;
+    tsk_treeseq_load(&ts, tree_filename, 0);
+
+    /* two_locus_stat(&ts); */
+    double *sample_weights = tsk_malloc(ts.num_samples * sizeof(*sample_weights));
+    for (tsk_size_t i = 0; i < ts.num_samples; i++) {
+        sample_weights[i] = 1;
+    }
+
+    const tsk_size_t sample_set_sizes[] = { ts.num_samples };
+    const tsk_id_t set_indexes[] = { 0 };
+    const tsk_size_t num_sample_sets = 1;
+    tsk_id_t sample_sets[ts.num_samples];
+    for (tsk_id_t i = 0; i < (tsk_id_t) ts.num_samples; i++) {
+        sample_sets[i] = i;
+    }
+
+    /* double windows[] = { 0, ts.tables->sequence_length }; */
+
+    double *result;
+    sample_count_stat_params_t args = { .sample_sets = sample_sets,
+        .num_sample_sets = num_sample_sets,
+        .sample_set_sizes = sample_set_sizes,
+        .set_indexes = set_indexes };
+
+    int ret = two_site_general_stat(&ts, num_sample_sets, sample_weights,
+        num_sample_sets, summary_function, &args, 0, NULL, options, &result);
+
+    if (ret != 0) {
+        puts(tsk_strerror(ret));
+        exit(1);
+    }
+
+    tsk_treeseq_free(&ts);
+    tsk_safe_free(result);
+    tsk_safe_free(sample_weights);
+
+    return ret;
+}

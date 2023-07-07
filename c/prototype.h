@@ -13,6 +13,10 @@ typedef uint32_t tsk_bit_array_t;
 #define TSK_AF_WEIGHTED (1 << 14)
 #define TSK_TOTAL_WEIGHTED (1 << 15)
 
+typedef int(summary_func)(tsk_size_t, const double *, tsk_size_t, double *, void *);
+
+int process_tree(summary_func *summary_function, const char *tree_filename);
+
 void intersect_bit_array(const tsk_bit_array_t *a, const tsk_bit_array_t *b,
     tsk_bit_array_t *out, const tsk_size_t len);
 

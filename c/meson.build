@@ -21,4 +21,7 @@ cunit_dep = dependency('cunit')
 test_lib = static_library('testlib', sources: ['testlib.c'], dependencies: [cunit_dep, deps])
 test_prototype = executable('test_prototype', ['test_prototype.c'],
                             link_with: [prototype_lib, test_lib], c_args: c_args, dependencies: [cunit_dep, deps])
+test_stats = executable('test_stats', ['test_stats.c'],
+                            link_with: [prototype_lib, test_lib], c_args: c_args, dependencies: [cunit_dep, deps])
 test('prototype', test_prototype)
+test('stats', test_stats)
