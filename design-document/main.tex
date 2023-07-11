@@ -6,9 +6,8 @@
 \usepackage{cite}
 \usepackage{amsmath}
 \usepackage[bb=dsserif]{mathalpha}
-\usepackage{svg}
-\usepackage{relsize}
 \usepackage{float}
+\usepackage[inline]{enumitem}
 
 \newcommand{\ccode}[1]{\mintinline{C}{#1}}
 \usepackage[linesnumbered,lined,commentsnumbered]{algorithm2e}
@@ -479,7 +478,6 @@ results in multiallelic cases in $r^2$.
   }
 \end{table}
 
-
 \begin{table}[H]
   \begin{tabular}{lc} Name & Result \\
     \hline
@@ -510,11 +508,52 @@ results in multiallelic cases in $r^2$.
   }
 \end{table}
 
+\section{Prototypes}
+The prototype code repo can be found
+\href{https://github.com/lkirk/ts-two-locus-proto/}{here}. It contains
+python/c/jupyter notebooks, which were used to prototype/test/benchmark/validate
+the approach.
 
+The work described above has been split into two goals:
+\begin{enumerate*}
+\item ensure mathematical correctness
+\item ensure algorithmic efficiency/fit within current tskit framework
+\end{enumerate*}.
+To achieve 1, a python prototype was made and unit tested for mathematical
+correctness. The core of that prototype can be found
+\href{https://github.com/lkirk/ts-two-locus-proto/blob/main/two_locus_proto/site.py}{here}
+and the unit tests can be seen
+\href{https://github.com/lkirk/ts-two-locus-proto/blob/main/test/test_ld_proto.py}{here}.
+The C prototype code is much more feature complete and can be found in
+\href{https://github.com/lkirk/ts-two-locus-proto/tree/main/c}{this} directory
+(described below).
 
+\newlength\q
+\setlength\q{\dimexpr .75\textwidth -2\tabcolsep}
 
-
-
+\begin{table}[H]
+  % \begin{tabular}{\textwidth}{lc} File & Description \\
+  \begin{tabular}{ lp{\q} }
+    File & Description \\
+    \hline
+\href{https://github.com/lkirk/ts-two-locus-proto/blob/main/c/prototype.c}{prototype.c}
+& Main algorithm and supporting bit array / normalization code. Also contains a
+small outer wrapper for running the code from a tree file \\
+\href{https://github.com/lkirk/ts-two-locus-proto/blob/main/c/summary_functions.c}{summary\_functions.c}
+& Summary function code for our 7 two-site statistics \\
+\href{https://github.com/lkirk/ts-two-locus-proto/blob/main/c/main.c}{main.c} &
+Simple command line interface for testing out the prototype \\
+\href{https://github.com/lkirk/ts-two-locus-proto/blob/main/c/test_prototype.c}{test\_prototype.c}
+& Unit testing for the bit array and sample manipulation code \\
+\href{https://github.com/lkirk/ts-two-locus-proto/blob/main/c/test_stats.c}{test\_stats.c}
+& End to end style tests, taking tree files as an input and verifying the
+results output \\
+  \end{tabular}
+  \caption{
+    \textbf{Breakdown of C source code in our prototype implementation.}
+    The first column links to the code directly.
+  }
+\end{table}
 
 
 \bibliographystyle{plain}
