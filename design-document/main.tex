@@ -57,205 +57,229 @@ correct my assumptions/understandings.
 
 \subsection{Outer Layer}
 
-For each summary function we intend to implement, we will have an outer wrapper
-for that function. For example, for the $r^2$ statistic, we will have a
-\ccode{r2_summary_func} and a corresponding \ccode{tsk_treeseq_r2}. These
-wrappers will call into \ccode{tsk_treeseq_sample_count_stat}, which will check
-our sample sets and produce a matrix of weights.
+Each summary function we intend to implement will have an outer wrapper. For
+example, the $r^2$ statistic, will have a \ccode{r2_summary_func} and a
+corresponding \ccode{tsk_treeseq_r2}. These wrappers will call into
+\ccode{tsk_treeseq_sample_count_stat}, which will check our sample sets and
+produce a matrix of weights.
 
-After these generic preparations (which will remain untouched for our purposes),
+After these generic preparations (we will want to consider how we're handling
+windows, see my proposal for the window design
+\href{https://github.com/lkirk/ts-two-locus-proto/blob/main/notebooks/Windows.ipynb}{notebook}),
 the code will call into \ccode{tsk_treeseq_general_stat}, which is the main
 entrypoint for computing stats from tree sequences. Within
-\ccode{tsk_treeseq_general_stat}, we will add some more conditionals in the form
-of \ccode{tsk_flags_t}.
+\ccode{tsk_treeseq_general_stat}, we will add two more conditions and a couple
+more flags (\ccode{tsk_flags_t}).
 
 \begin{minted}{c}
   bool stat_two_site = !!(options & TSK_STAT_TWO_SITE);
   bool stat_two_branch = !!(options & TSK_STAT_TWO_BRANCH);
 \end{minted}
 
-These flags would dispatch our entrypoints for computing two site/branch
-statistics, allowing us to use the same entrypoint function for all statistics.
+These flags will dispatch our entrypoints for computing two site/branch
+statistics, allowing us to use the same entrypoint function for all site
+statistics.
 
 \subsection{Two Site Statistics}
 
-\subsubsection{Node counting to compare pairs of sites}\label{section:node_counting}
+We will provide a similar interface to computing
+\ccode{tsk_treeseq_site_general_stat}, calling our version
+\ccode{tsk_treeseq_two_site_general_stat}. This function will first populate an
+array of all samples under each given mutation. Then, it will free some
+intermediate data and allocate the output array. Finally, it will compute the
+two site stat results and store them in the output array, normalized by the
+normalization strategy for the summary function (see~\ref{section:normalization}).
 
-We are considering two algorithms for traversing the trees and storing haplotype
-counts. One is more CPU intensive and the other is more memory intensive. Here,
-I will outline both for consideration:
+\subsubsection{Bit Arrays}\label{section:bit_array}
+Because we're storing samples instead of node counts, we must be efficient in
+the way that we store samples.
 
-% https://mirror.mwt.me/ctan/macros/latex/contrib/algorithm2e/doc/algorithm2e.pdf
-\paragraph{Option 1 (memory intensive)}
+The data structure that allows us to efficiently store samples is known in our
+implementation as a \ccode{tsk_bit_array_t}. This is an array of unsigned 32-bit
+integers, setting one bit for each sample. I've chosen to implement these as
+32-bit integers instead of 64-bit integers because I assume that they will be
+easier to auto-vectorize (unverified). The length of a bit array is the number
+of possible items floor divided by the size of the unsigned integer type used in
+the array (plus one more unsigned integer if the remainder of the division is
+$>$ 1).
+
+Another benefit of storing samples in this way is that we can efficiently
+perform intersection operations on two arrays of integers. We achieve this by
+performing a bitwise ``and'' on the chunks within the array (which seems to be
+autovectorized by gcc -- see \href{https://godbolt.org/z/zd7qWGeKq}{godbolt}).
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{ | c | c | c | }
+    \hline
+    a & 10000000000000000000000000000000 & 10000000000000000000000000000001 \\ \hline
+    b & 11111111111111111111111111111111 & 11111111111111111111111111110000 \\
+    \hline
+  \end{tabular}
+  \caption{
+    \textbf{Examples of byte arrays}
+    Case a represents an array for 64 samples, where sample 0, 32, 63 are
+    present. Case b represents an array for 60 samples where all samples (0-59)
+    are present. In both of these cases, there are two ``sample chunks'', which
+    refer to the number of unsigned integers needed to store all of the samples.
+  }
+  \label{table:byte_array_example}
+\end{table}
+
+% Since we view the data as arrays of unsigned 32 bit integers, the data will
+% appear as shown in the following example:
+
+% \begin{table}[H]
+%   \centering
+%   \begin{tabular}{ | c | c | c | }
+%     \hline
+%     a & 1 & 2147483648 \\ \hline
+%     b & 4294967295 & 4294967295 \\
+%     \hline
+%   \end{tabular}
+%   \caption{
+%     \textbf{Byte arrays as unsigned integers}
+%     Case a represents an array for 64 samples, where sample 0, 32, 63 are
+%     present. Case b represents an array for 60 samples where all samples (0-59)
+%     are present.
+%   }
+%   \label{table:byte_array_int_example}
+% \end{table}
+
+\subsubsection{Walking the tree diffs}\label{section:node_counting}
+
+In order to analyze the tree structure, we need to first build a small index of
+the parents, right children, and left/right siblings of each node. This prepares
+us to perform a preorder tree traversal in the next step of the algorithm. This
+index is built as we apply the diffs for the next tree.
+
+\subsubsection{Tree Traversal}
+
+After a set of tree diffs has been applied, we have a valid tree to analyze. We
+perform a single preorder traversal of the tree, where we track the path through
+the tree for each mutation. This traversal does not start at the root of the
+tree, but instead starts at the node above the uppermost mutation in the
+tree. The paths are stored in another bit array of size (num node chunks
+$\times$ num mutations). The number of node chunks is determined by the method
+described in \ref{section:bit_array}. Memory usage scales by $\mathcal{O}(m
+\times n)$, where m is the number of mutations and n is the number of nodes. We
+only allocate this matrix per-tree, however, so the max memory usage is limited
+to the maximum number of mutations on a single tree.
+
+Following the paths down from the mutations to the samples allows us to see
+which samples are child to the mutations in the tree. While we are tracing this
+path, when we reach a sample node, we add the sample node to our intermediate
+array of mutations $\times$ samples.
+
+After we accumulate the samples under each mutation on our focal tree, we
+enumerate the alleles for each site, using the same algorithm employed in
+\ccode{get_allele_weights}, except that we're passing around sample bit arrays
+instead of node counts. The result of our routine (named
+\ccode{get_allele_samples}) gets stored in an output array that holds results
+for all mutations and all samples (sample sets are not considered at this stage).
+
+A simple benchmark of chromosome 1 of the sgdp dataset shows that applying all
+tree diffs + tree traversals take ~7.5 seconds and about 750M of memory.
+
+\paragraph{Tree Traversal Algorithm}
 \mbox{} \\
 \begin{algorithm}[H]
   \SetArgSty{textnormal}
 
-  \emph{Loop over all trees trees, computing their state and storing in a matrix} \\
-  state = calloc (num\_nodes $\ast$ num\_trees, sizeof ($\ast$ double))
-  
-  \For{tree\_index = 0 \KwTo{} num\_trees}{
+  \emph{Allocate memory to hold this tree's data} \\
+  node\_paths = calloc (num\_node\_chunks $\ast$ num\_mutations, sizeof ($\ast$
+  node\_paths)) \\
+  stack = malloc((1 + num\_samples + num\_edges) $\ast$ sizeof ($\ast$ stack)) \\
 
-    count\_edges\_under\_nodes (tree, \&state) \\
+  \emph{} \\
+  \emph{Initialize the stack with the parent of the uppermost node containing a mutation} \\
+  stack.push(parent[top\_mut\_node]) \\
 
-  }
-  \emph{Compute two locus statistics for all combinations of sites (with
-replacement)} \\
-  sites\_subloop\_start = 0
-  \For{site\_index\_left = 0 \KwTo{} num\_sites\_left}{
-    \For{site\_index\_right = sites\_subloop\_start \KwTo{} num\_sites\_right}{
-      compute\_general\_stat\_two\_site\_result (site\_index\_left, site\_index\_right, state) \\
-    }
-    sites\_subloop\_start++ \\
-  }
+  \While{!stack.empty()}{
 
-\end{algorithm}
+    node = stack.pop() \\
+    \For{mut\_id = 0 \KwTo{} num\_mutations}{
+      path = node\_paths[m] \\
 
-Using this strategy, we will end up with memory scaling of $\mathcal{O}(n \times
-m)$, where $n$ is the number of edges in the tree sequence and $m$ is the number
-of trees. The computational complexity should be roughly $\mathcal{O}({m}^{2})$
-where $m$ is the number of sites.
-
-\paragraph{Option 2 (CPU intensive)}
-\mbox{} \\
-\begin{algorithm}[H]
-  \SetArgSty{textnormal}
-
-  \emph{Loop over pairs of trees and compute statistics after computing the left
-  and right state for each tree pair} \\
-  subloop\_start = 0 \\
-  
-  \For{tree\_index\_left = 0 \KwTo{} num\_trees}{
-
-    \emph{Count edges on the left tree} \\
-    count\_edges\_under\_nodes (left\_tree, \&left\_state) \\
-
-    \For{tree\_index\_right = subloop\_start \KwTo{} num\_trees\_right}{
-
-      \emph{Count edges on the right tree} \\
-      count\_edges\_under\_nodes (right\_tree, \&right\_state) \\
-
-      \emph{Compute two locus statistics for all combinations of sites within
-        left and right tree (with replacement)} \\
-      sites\_subloop\_start = 0
-      \For{site\_index\_left = 0 \KwTo{} num\_sites\_left}{
-        \For{site\_index\_right = sites\_subloop\_start \KwTo{} num\_sites\_right}{
-          compute\_general\_stat\_two\_site\_result (site\_index\_left, site\_index\_right, left\_state, right\_state) \\
+      \emph{} \\
+      \emph{If the current node contains this mutation, store it for the node} \\
+      \If{node == mutation.node} {
+        path[node] = 1 \\
+        \If{node.is\_sample} {
+          \emph{If the current node is a sample, store it for this mutation} \\
+          mutation\_samples[node] = 1 \\
         }
-        sites\_subloop\_start++ \\
       }
 
-
+      \emph{} \\
+      \emph{If this node's parent is in this mutation's path, then store the
+        current node} \\
+      \If{parent[node] in path} {
+        path[node] = 1 \\
+        \If{node.is\_sample} {
+          \emph{If the current node is a sample, store it for this mutation} \\
+          mutation\_samples[node] = 1 \\
+        }
+      }
     }
-    tree\_index\_right++ \\
+
+    \emph{} \\
+    \emph{Continue the postorder traversal (handles polysomies)} \\
+    u = right\_child[node] \\
+    \While {u $\neq$ NULL} {
+      stack.push(u) \\
+      u = left\_sib[u] \\
+    }
   }
 \end{algorithm}
-
-In this approach, we end up with memory scaling of $\mathcal{O}(n)$, where $n$
-is the number of edges in a given tree. The computational scaling of this
-approach is roughly $\mathcal{O}({m}^{2} \times {n}^{2})$ where $m$ is
-the number of sites and $n$ is the number of trees.
-
-Without profiling, I am not sure how these approaches behave under different
-topologies, but I would lean towards \textbf{Option 1} unless there are strict
-memory requirements for tskit. In any case, comparing these two algorithms would
-not be difficult. I'm also open to suggestions here.
-
-\subsubsection{Two-Site General Stats Interface}
-We will provide a similar interface to computing
-\ccode{tsk_treeseq_site_general_stat}, with a different tree traversal algorithm
-(see Section~\ref{section:node_counting}), providing haplotype counts instead of
-site counts (see Section~\ref{section:hap_counting}). In our implementation, we
-will use \ccode{get_allele_weights} to compute the allele counts for our left
-and right site. We will then pass the allele states for the lefthand site and
-the righthand site into \ccode{compute_general_stat_two_site_result} (described
-in Section~\ref{section:computing_results}).
-
-\begin{minted}{c}
-static int
-tsk_treeseq_two_site_general_stat(
-	const tsk_treeseq_t *self,
-	tsk_size_t state_dim,
-	const double *sample_weights,
-	tsk_size_t result_dim,
-	general_stat_func_t *f,
-	void *f_params,  // We can use sample_count_stat_params_t
-	tsk_size_t num_windows,
-	const double *windows,
-	tsk_flags_t options,
-	double *result
-)
-\end{minted}
 
 \subsection{Computing results}\label{section:computing_results}
 
-The two site result function will accept the allele states from two sites as
-parameters. This means that we can avoid running \ccode{get_allele_weights}
-multiple times for a single site. Our two site results function will compute the
-counts of haplotypes for a given pair of sites and pass these haplotype counts
-to our summary functions.
+Given our matrix of alleles $\times$ samples, two focal sites, and our sample
+sets, we summarize the data into the desired statistics. We achieve this by
+iterating over all pairs of allele states for the two sites (skipping the
+ancestral allele state if polarized). For each pair, we compute the allele
+weights ($w\_AB$, $w\_Ab$, and $w\_aB$), which get passed into the summary
+function. After we compute the stat result from the summary function, we
+normalize the statistic with the selected normalization function
+(see~\ref{section:normalization} for more on normalization). Throughout this
+process, we keep a running total for the pair of sites, storing the result in a
+scalar value.
 
-\begin{minted}{c}
-static int
-compute_general_stat_two_site_result(
-	double *site_a_allele_states,
-	double *site_b_allele_states,
-        tsk_size_t num_a_alleles,
-        tsk_size_t num_b_alleles,
-	tsk_size_t allele_state_dim,
-	tsk_size_t result_dim,
-	general_stat_func_t *f,
-	void *f_params,
-	double *total_weight,
-	bool polarised,
-	double *result,
-)
-\end{minted}
+\paragraph{Algorithm for computing stat results}
+\mbox{} \\
+\begin{algorithm}[H]
+  \SetArgSty{textnormal}
 
-\subsubsection{Haplotype Counting Algorithm}\label{section:hap_counting}
+  \emph{Loop over pairs} \\
+  first\_allele = 1 if polarized else 0 \\
+  \For{allele\_left = first\_allele \KwTo{} num\_alleles\_left}{
+    \For{allele\_right = first\_allele \KwTo{} num\_alleles\_right}{
+      \emph{Find all A/B samples for alleles} \\
+      A\_samples = allele\_samples[allele\_left] \\
+      B\_samples = allele\_samples[allele\_right] \\
+      AB\_samples = intersect(A\_samples, B\_samples) \\
+      \For{k = 0 \KwTo{} num\_sample\_sets} {
+        \emph{Intersect all A/B samples with the current sample set} \\
+        sample\_set = sample\_sets[k] \\
+        sample\_set\_A\_samples = intersect(A\_samples, sample\_set) \\
+        sample\_set\_B\_samples = intersect(B\_samples, sample\_set) \\
+        sample\_set\_AB\_samples = intersect(AB\_samples, sample\_set) \\
 
-We use pairs of 1-d row vectors (allele\_states in the previous section) to
-describe the terminal allelic state in a given pair of sites. For example, if
-we're given a tree sequence like the one shown in Figure~\ref{fig:example_tree},
-we will loop over the combinations of sites and compare them in pairs: (0, 0),
-(0, 1), (1, 1). In the portion of the loop where we're comparing site 0 and site
-1, the lefthand vector will be $\left(\begin{array}{cccccccc}2 & 2 & 3 & 3 & 1 &
-1 & 1 & 1 \\\end{array}\right)$ and the righthand vector will be
-$\left(\begin{array}{cccccccc} 1 & 1 & 1 & 1 & 2 & 2 & 2 & 0
-\\\end{array}\right)$. When we compute the haplotype counts for the comparison
-of site 0 and site 1, we get a matrix with dimensions
-n\_alleles\_A$\times$n\_alleles\_B. In our case 4$\times$3. The resulting
-haplotype count matrix for our example is:
+        weight[k] = (w\_AB, w\_Ab, w\_aB) \\
+      }
 
-\[
-  \left(
-    \begin{array}{ccc}
-      0 & 0 & 0 \\
-      1 & 0 & 3 \\
-      0 & 2 & 0 \\
-      0 & 2 & 0 \\
-    \end{array}
-  \right)
-\]
+      \emph{Both of these functions operate at the sample set level} \\
+      stat\_result = stat\_func(weight, params) \\
+      norm\_result = norm\_func(weight, params) \\
 
-To produce these counts, we address the haplotype matrix with the enumerated
-allelic state as the x and y coordinate and increment the count by one for each
-that we encounter (very similar to the algorithm in the python prototype).
-\
-\begin{figure}[H]
-    \centering
-    % \includesvg[width=\textwidth]{figure1.svg}
-    % \includesvg[width=\linewidth,inkscapelatex=false,pretex=\relscale{0.4}]{figure1.svg}
-    \includesvg[width=\linewidth,inkscapelatex=false]{figure1.svg}
-    \caption{
-      \textbf{An example of a tree sequence used to compute two-locus statistics.}
-      The left tree has one site with four states and the right tree has one
-      site with three states.
+      \For{k = 0 \KwTo{} num\_sample\_sets} {
+        \emph{Store running total for sample set result in the current pair} \\
+        result[k] += stat\_result[k] * norm\_result[k] \\
+      }
     }
-\label{fig:example_tree}
-\end{figure}
-
-
+  }
+\end{algorithm}
 
 \section{Summary Functions}
 
@@ -296,25 +320,6 @@ Where $D_{max}$ is defined as:
   \end{cases}
 \]
 
-\subsection{Summary Function Signature}
-Two locus statistics need to know the number of AB, Ab, and aB haplotypes. They
-also need to know the total number of haplotypes being considered in order to
-properly convert the counts of each haplotype to proportions.
-\begin{minted}{c}
-static int
-summary_func(int w_AB, int w_Ab, int w_aB, int n)
-\end{minted}
-
-\begin{minted}{c}
-two_site_summary_func(
-	tsk_size_t state_dim,
-	const double *state,
-	tsk_size_t TSK_UNUSED(result_dim),
-	double *result,
-	void *params
-)
-\end{minted}
-
 \subsection{Normalization} \label{section:normalization}
 In our testing of summary functions, we found that the appropriate normalization
 procedure can vary depending on the summary function. We've settled on three
@@ -334,8 +339,9 @@ in~\cite{zhao2007evaluation}.
 
 \subsubsection{Allele Frequency Weighted}
 In the ``Allele Frequency'' normalization method, we weight the statistics by
-the product of the allele frequencies. This is necessary in ratio statistics,
-such as TODO.
+the product of the allele frequencies. We do not currently implement any
+statistics with this normalization strategy, but felt it was useful to
+implement, for the sake of completeness.
 \[
   \sum_{i=1}^{n}\sum_{j=1}^{m}p(A_{i})p(B_{j})F_{ij}
 \]
@@ -345,8 +351,8 @@ described in~\cite{hedrick1987gametic}.
 
 \subsubsection{Total}
 In the ``Total'' normalization method, we simply divide by the number of
-haplotypes that we've visited. If we're using a non-ratio statistic, this is
-likely the desired normalization stategy.
+haplotypes. If we're using a non-ratio statistic, this is likely the desired
+normalization stategy.
 \[
   \frac{1}{(n-\mathbb{1}_{p}) (m-\mathbb{1}_{p})}\sum_{i=1}^{n}\sum_{j=1}^{m}F_{ij}
 \]
@@ -359,16 +365,22 @@ To ensure the correctness of our implementation, we have devised a number of
 test scenarios that will produce data at the theoretical limits of the
 statistics we've implemented. Note that our validation is not exhaustive, but it
 is a reasonable starting point for the purposes of verifying the correctness of
-our normalization strategy and will be useful for our C implementation.
+our normalization strategy and our C implementation. These results were first
+produced with a python prototype, which we verified to be correct before using
+it to validate the C code.
 
 \subsubsection{Test cases}
 Table~\ref{table:test_cases} enumerates the various test cases that we are using
 to validate the correctness of our metrics. The subsequent sections refer to
-test cases by name. Each test case is a two-site state matrix with 8-9 samples.
+test cases by name. Each test case is a two-site state matrix with 8-9
+samples. Each number in our matricies represents the enumerated allelic state
+for each sample. For example, in the corerlated case, sample 4 from site A has
+allelic state number 2 and sample 0 on site A has the ancestral allele, allelic
+state number 0.
 
 \begin{table}[H]
   \centering
-  \begin{tabular}{lc} Name & $\left(\begin{array}{cc} Site A \\ Site B
+  \begin{tabular}{lc} Name & $\left(\begin{array}{cc} Site A Allele \\ Site B Allele
                                      \\ \end{array}\right)$ \\
 
     \hline
@@ -401,17 +413,23 @@ test cases by name. Each test case is a two-site state matrix with 8-9 samples.
   \label{table:test_cases}
 \end{table}
 
-\subsubsection{Polarized}
-We'll begin with the polarized statistics. $D$ and $D^{\prime}$ sum to zero when
-they are unpolarized, so we are only providing a polarized method to compute
-them. The correctness of polarized $D$ is best verified with bi-allelic
-sites. We can use the unpolarized statistics to verify the correctness of $D$ in
-multi-allelic scenarios. These results tell us that our normalization strategy
-is correct and that D has been properly implemented.
+\subsubsection{Results}
+Here, we provide results for a few common statistics, exercising the diversity
+of strategies for normalization and polarization. The biallelic cases are useful
+for verifying the correctness of $r$ and $D$. We also obtain the expected
+results in multiallelic cases in $r^2$.
 
 \begin{table}[H]
   \begin{tabular}{lc} Name & Result \\
     \hline
+    Correlated & $\left(\begin{array}{cc}
+                          0.0556 & -0.01851 \\
+                          -0.0185 & 0.0432 \\
+                        \end{array}\right)$ \\
+    Uncorrelated & $\left(\begin{array}{cc}
+                            0.0556 & 0.0 \\
+                            0.0 & 0.0556 \\
+                          \end{array}\right)$ \\
     Correlated Biallelic & $\left(\begin{array}{cc}
                                     0.25 & 0.25 \\
                                     0.25 & 0.25 \\
@@ -421,49 +439,83 @@ is correct and that D has been properly implemented.
                                       0.0 & 0.25 \\
                                     \end{array}\right)$ \\
     Repulsion Biallelic & $\left(\begin{array}{cc}
-                                    0.25 & -0.25 \\
-                                    -0.25 & 0.25 \\
+                                   0.25 & -0.25 \\
+                                   -0.25 & 0.25 \\
                                  \end{array}\right)$ \\
-    Correlated (unpolarized) & $\left(\begin{array}{cc}
-                                        0.0 & 0.0 \\
-                                        0.0 & 0.0 \\
-                                      \end{array}\right)$ \\
   \end{tabular}
   \caption{
     \textbf{Validation results for $D$}
-    All results are polarized unless marked unpolarized.
+    $D$ is polarized and weighted by the total number of haplotypes
   }
 \end{table}
 
 \begin{table}[H]
   \begin{tabular}{lc} Name & Result \\
     \hline
+    Correlated & $\left(\begin{array}{cc}
+                          0.2610 & -0.1221 \\
+                          -0.1221 &  0.1838 \\
+                        \end{array}\right)$ \\
     Correlated Biallelic & $\left(\begin{array}{cc}
-                                    0.5 & 0.5 \\
-                                    0.5 & 0.5 \\
+                                    1. & 1. \\
+                                    1. & 1. \\
                                   \end{array}\right)$ \\
+    Uncorrelated & $\left(\begin{array}{cc}
+                            0.25 & 0.   \\
+                            0.   & 0.25 \\
+                          \end{array}\right)$ \\
     Uncorrelated Biallelic & $\left(\begin{array}{cc}
-                                      0.5 & 0.0 \\
-                                      0.0 & 0.5 \\
+                                      1. & 0. \\
+                                      0. & 1. \\
                                     \end{array}\right)$ \\
     Repulsion Biallelic & $\left(\begin{array}{cc}
-                                    0.5 & 0.0 \\
-                                    0.0 & 0.5 \\
+                                   1. & -1. \\
+                                   -1. &  1. \\
                                  \end{array}\right)$ \\
-    Correlated (unpolarized) & $\left(\begin{array}{cc}
-                                        1.0 & 1.0 \\
-                                        1.0 & 1.0 \\
-                                      \end{array}\right)$ \\
-    Unorrelated (unpolarized) & $\left(\begin{array}{cc}
-                                         1.0 & 0.0 \\
-                                         0.0 & 1.0 \\
-                                       \end{array}\right)$ \\
   \end{tabular}
   \caption{
     \textbf{Validation results for $r$.}
-    All results are polarized unless marked unpolarized.
+    $r$ is polarized and weighted by the total number of haplotypes.
   }
 \end{table}
+
+
+\begin{table}[H]
+  \begin{tabular}{lc} Name & Result \\
+    \hline
+    Correlated & $\left(\begin{array}{cc}
+                          1. & 1. \\
+                          1. & 1. \\
+                        \end{array}\right)$ \\
+    Correlated Biallelic & $\left(\begin{array}{cc}
+                                    1. & 1. \\
+                                    1. & 1. \\
+                                  \end{array}\right)$ \\
+    Uncorrelated & $\left(\begin{array}{cc}
+                            1. & 0. \\
+                            0. & 1. \\
+                          \end{array}\right)$ \\
+    Uncorrelated Biallelic & $\left(\begin{array}{cc}
+                                      1. & 0. \\
+                                      0. & 1. \\
+                                    \end{array}\right)$ \\
+    Repulsion Biallelic & $\left(\begin{array}{cc}
+                                   1. & 1. \\
+                                   1. & 1. \\
+                                 \end{array}\right)$ \\
+  \end{tabular}
+  \caption{
+    \textbf{Validation results for $r^2$.}
+    $r^2$ is unpolarized and normalized by haplotype weighting.
+  }
+\end{table}
+
+
+
+
+
+
+
 
 \bibliographystyle{plain}
 \bibliography{references}
