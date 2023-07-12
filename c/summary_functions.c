@@ -69,7 +69,7 @@ r2(tsk_size_t state_dim, const double *state, tsk_size_t TSK_UNUSED(result_dim),
         double denom = p_A * p_B * (1 - p_A) * (1 - p_B);
 
         if (denom == 0 && D_ == 0) {
-            result[j] = NAN; // TODO: what sort of value should I actually return here
+            result[j] = 0;
         } else {
             result[j] = (D_ * D_) / denom;
         }
@@ -125,7 +125,7 @@ r(tsk_size_t state_dim, const double *state, tsk_size_t TSK_UNUSED(result_dim),
         double denom = p_A * p_B * (1 - p_A) * (1 - p_B);
 
         if (denom == 0 && D_ == 0) {
-            result[j] = NAN; // TODO: what sort of value should I actually return here
+            result[j] = 0;
         } else {
             result[j] = D_ / sqrt(denom);
         }

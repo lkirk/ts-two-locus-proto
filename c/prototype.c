@@ -248,6 +248,7 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
                     add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
                 }
             }
+            // TODO, can this be converted to an or?
             if (node_in_array(path, parent[node])) {
                 add_bit_to_bit_array(path, (tsk_bit_array_t) node);
                 if (flags[node] & TSK_NODE_IS_SAMPLE) {
@@ -422,10 +423,11 @@ compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset
                 goto out;
             }
             ret = norm_func(state_dim, hap_weights, num_alleles[site_1] - polarised_val,
-                num_alleles[site_1] - polarised_val, hap_norm, f_params);
+                num_alleles[site_2] - polarised_val, hap_norm, f_params);
             if (ret != 0) {
                 goto out;
             }
+            // TODO: should be setting result for each sample set (result[k])
             for (tsk_size_t k = 0; k < state_dim; k++) {
                 *result += result_tmp_row[k] * hap_norm[k];
             }
@@ -552,7 +554,7 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     const double *sample_weights, tsk_size_t result_dim, general_stat_func_t *f,
     void *f_params, tsk_size_t TSK_UNUSED(num_windows),
     const double *TSK_UNUSED(windows), tsk_flags_t options, double **result,
-    bool print_weights)
+    tsk_size_t *num_stat, bool print_weights)
 {
     int ret = 0;
     const tsk_size_t num_sites = self->tables->sites.num_rows;
@@ -573,10 +575,12 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
         goto out;
     }
 
+    // A future improvement could get a union of all sample sets
+    // instead of all samples
     get_all_samples_bits(all_samples_bits, num_samples, num_sample_chunks);
 
-    // Initialize the mutation sample tracking with all samples in the ancestral
-    // allele
+    // Initialize the mutation sample tracking with all samples in the
+    // ancestral allele
     // TODO: rework this slightly to use the site offsets array
     tsk_bit_array_t *allele_samples_row;
     tsk_size_t num_muts_cumsum = 0;
@@ -594,9 +598,9 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     get_all_mutation_samples(self, num_sample_chunks, num_alleles, &mut_allele_samples);
 
     // Number of pairs w/ replacement (sites)
-    tsk_size_t num_stat = (num_sites * (1 + num_sites)) >> (tsk_size_t) 1;
+    *num_stat = (num_sites * (1 + num_sites)) >> (tsk_size_t) 1;
 
-    *result = tsk_malloc(num_stat * result_dim * sizeof(*result));
+    *result = tsk_calloc(*num_stat * result_dim, sizeof(*result));
     double *total_weight = tsk_calloc(state_dim, sizeof(*total_weight));
     tsk_bit_array_t *sample_bits
         = tsk_calloc(num_sample_chunks * state_dim, sizeof(*sample_bits));
@@ -644,13 +648,15 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
         inner++;
     }
 
-    printf("result ");
-    for (tsk_size_t i = 0; i < num_stat; i++) {
-        printf("%.18f", (*result)[i]);
-        if (i != num_stat - 1) {
-            printf(",");
-        } else {
-            printf("\n");
+    if (print_weights) {
+        printf("result ");
+        for (tsk_size_t i = 0; i < *num_stat; i++) {
+            printf("%.18f", (*result)[i]);
+            if (i != *num_stat - 1) {
+                printf(",");
+            } else {
+                printf("\n");
+            }
         }
     }
 out:
@@ -714,8 +720,8 @@ pick_polarisation(summary_func *func)
 }
 
 int
-process_tree(
-    summary_func *summary_function, const char *tree_filename, bool print_weights)
+process_tree(summary_func *summary_function, const char *tree_filename, double **result,
+    tsk_size_t *num_stat, bool print_weights)
 {
     tsk_flags_t options = 0;
     options |= pick_norm_strategy(summary_function);
@@ -742,7 +748,6 @@ process_tree(
 
     /* double windows[] = { 0, ts.tables->sequence_length }; */
 
-    double *result;
     sample_count_stat_params_t args = { .sample_sets = sample_sets,
         .num_sample_sets = num_sample_sets,
         .sample_set_sizes = sample_set_sizes,
@@ -750,7 +755,7 @@ process_tree(
 
     int ret
         = two_site_general_stat(&ts, num_sample_sets, sample_weights, num_sample_sets,
-            summary_function, &args, 0, NULL, options, &result, print_weights);
+            summary_function, &args, 0, NULL, options, result, num_stat, print_weights);
 
     if (ret != 0) {
         puts(tsk_strerror(ret));
@@ -758,7 +763,6 @@ process_tree(
     }
 
     tsk_treeseq_free(&ts);
-    tsk_safe_free(result);
     tsk_safe_free(sample_weights);
 
     return ret;

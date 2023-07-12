@@ -31,6 +31,7 @@ main(int argc, char **argv)
     char *filename;
     summary_func *func;
     bool print_weights = false;
+    double *result;
 
     if (argc < 3 || argc > 4) {
         printf("usage: %s <summary_func> <input_tree> [print_weights]\n", argv[0]);
@@ -60,5 +61,7 @@ main(int argc, char **argv)
         }
     }
 
-    return process_tree(func, filename, print_weights);
+    tsk_size_t num_stat;
+    return process_tree(func, filename, &result, &num_stat, print_weights);
+    tsk_safe_free(result);
 }

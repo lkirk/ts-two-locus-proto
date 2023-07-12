@@ -15,8 +15,8 @@ typedef uint32_t tsk_bit_array_t;
 
 typedef int(summary_func)(tsk_size_t, const double *, tsk_size_t, double *, void *);
 
-int process_tree(
-    summary_func *summary_function, const char *tree_filename, bool print_weights);
+int process_tree(summary_func *summary_function, const char *tree_filename,
+    double **result, tsk_size_t *num_stat, bool print_weights);
 
 void intersect_bit_array(const tsk_bit_array_t *a, const tsk_bit_array_t *b,
     tsk_bit_array_t *out, const tsk_size_t len);
@@ -49,7 +49,7 @@ void get_all_samples_bits(
 int two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     const double *sample_weights, tsk_size_t result_dim, general_stat_func_t *f,
     void *f_params, tsk_size_t num_windows, const double *windows, tsk_flags_t options,
-    double **result, bool print_weights);
+    double **result, tsk_size_t *num_stat, bool print_weights);
 
 void sample_weights_to_bit_array(const double *weights, tsk_size_t num_sample_sets,
     tsk_size_t num_samples, tsk_size_t num_sample_chunks, double **total_weight,
