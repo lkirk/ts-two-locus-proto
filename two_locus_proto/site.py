@@ -57,9 +57,7 @@ def compute_stat_and_weights(hap_mat, summary_func, polarized, norm_method, left
             stats[a_idx, b_idx] = summary_func(w_AB, w_Ab, w_aB, n)
 
             if print_weights:
-                print(
-                    left_site, right_site, a_idx, b_idx, int(w_AB), int(w_Ab), int(w_aB), int(n), sep="\t"
-                )
+                print(left_site, right_site, a_idx, b_idx, int(w_AB), int(w_Ab), int(w_aB), int(n), sep="\t")
             # create weights matrix
             if norm_method is NormMethod.HAP_WEIGHTED:
                 hap_freq = hap_mat / n
@@ -85,12 +83,12 @@ def compute_two_site_general_stat(state, func, polarized, norm_method, debug=Fal
             hap_mat[A_i, B_i] += 1
         stats, weights = compute_stat_and_weights(hap_mat, func, polarized, norm, l_idx, r_idx, print_weights)
         if debug:
-            print('hap_mat', hap_mat, 'stats', stats, 'weights', weights, "============", sep="\n")
+            print("hap_mat", hap_mat, "stats", stats, "weights", weights, "============", sep="\n")
         result[l_idx, r_idx] = (stats * weights).sum()
 
     if print_weights:
         np.set_printoptions(precision=15)
-        print('result', ','.join(v.astype(str) for v in result[np.triu_indices(len(result))]))
+        print("result", ",".join(v.astype(str) for v in result[np.triu_indices(len(result))]))
     tri_idx = np.tril_indices(len(result), k=-1)
     result[tri_idx] = result.T[tri_idx]
     return result
