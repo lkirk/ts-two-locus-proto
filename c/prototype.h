@@ -39,9 +39,8 @@ typedef int norm_func_t(tsk_size_t state_dim, const double *hap_weights, tsk_siz
 
 int get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     const tsk_size_t num_sample_chunks, const tsk_id_t *right_child,
-    const tsk_id_t *left_sib, const tsk_id_t *parent, tsk_size_t *out_offset,
-    tsk_size_t *mut_offset, tsk_bit_array_t *restrict *mut_allele_samples,
-    tsk_size_t *restrict *num_alleles);
+    const tsk_id_t *left_sib, const tsk_id_t *parent, const tsk_size_t *site_offsets,
+    tsk_bit_array_t *restrict *allele_samples, tsk_size_t *restrict *num_alleles);
 
 void get_all_samples_bits(
     tsk_bit_array_t *all_samples, tsk_size_t n, tsk_size_t n_chunks);
@@ -56,12 +55,12 @@ void sample_weights_to_bit_array(const double *weights, tsk_size_t num_sample_se
     tsk_bit_array_t **sample_bits);
 
 int get_all_mutation_samples(const tsk_treeseq_t *self,
-    const tsk_size_t num_sample_chunks, tsk_size_t *num_alleles,
-    tsk_bit_array_t **mut_allele_samples);
+    const tsk_size_t num_sample_chunks, const tsk_size_t *site_offsets,
+    tsk_size_t *num_alleles, tsk_bit_array_t **allele_samples);
 
-int compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset,
-    tsk_size_t site_2, tsk_size_t site_2_offset, tsk_size_t num_sample_chunks,
+int compute_general_two_site_stat_result(tsk_size_t site_a, tsk_size_t site_a_offset,
+    tsk_size_t site_b, tsk_size_t site_b_offset, tsk_size_t num_sample_chunks,
     const tsk_size_t *num_alleles, const tsk_bit_array_t *state, tsk_size_t state_dim,
     tsk_bit_array_t *sample_sets, tsk_size_t result_dim, general_stat_func_t *f,
-    void *f_params, norm_func_t *norm_func, const double *total_weight, bool polarised,
+    void *f_params, norm_func_t *norm_f, const double *total_weight, bool polarised,
     tsk_flags_t options, double *result, bool print_weights);

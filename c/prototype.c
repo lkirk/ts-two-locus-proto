@@ -110,8 +110,6 @@ get_allele_samples(const tsk_site_t *site, const tsk_size_t num_sample_chunks,
     tsk_size_t mutation_index, allele, alt_allele_length;
     /* The allele table */
     tsk_size_t max_alleles = site->mutations_length + 1;
-    /* printf("max_alleles: %lu, %lu\n", max_alleles, max_alleles * sizeof(const char
-     * *)); */
     const char **alleles = tsk_malloc(max_alleles * sizeof(*alleles));
     tsk_size_t *allele_lengths = tsk_calloc(max_alleles, sizeof(*allele_lengths));
     const char *alt_allele;
@@ -186,30 +184,29 @@ out:
 int
 get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     const tsk_size_t num_sample_chunks, const tsk_id_t *right_child,
-    const tsk_id_t *left_sib, const tsk_id_t *parent, tsk_size_t *out_offset,
-    tsk_size_t *mut_offset, tsk_bit_array_t *restrict *mut_allele_samples,
-    tsk_size_t *restrict *num_alleles)
+    const tsk_id_t *left_sib, const tsk_id_t *parent, const tsk_size_t *site_offsets,
+    tsk_bit_array_t *restrict *allele_samples, tsk_size_t *restrict *num_alleles)
 // TODO: the restricts here, not sure. Are the row declarations aliases? I think so.
 {
     int ret = 0;
 
-    const tsk_size_t num_edges = self->tables->edges.num_rows;
-    const tsk_flags_t *restrict flags = self->tables->nodes.flags;
+    const tsk_size_t num_edges = tsk_treeseq_get_num_edges(self);
     const tsk_size_t num_sites = self->tree_sites_length[tree_index];
-    const tsk_site_t *restrict sites = self->tree_sites[tree_index];
+    const tsk_flags_t *restrict flags = self->tables->nodes.flags;
+    const tsk_site_t *restrict tree_sites = self->tree_sites[tree_index];
     const tsk_id_t *restrict mut_nodes = self->tables->mutations.node;
     const tsk_site_t *restrict site;
 
     tsk_id_t u, node, top_mut_node, *stack;
     tsk_bit_array_t *mut_samples, *mut_samples_row, *node_paths, *path, *out_row;
-    tsk_size_t num_mutations, state_offset, num_nodes, num_node_chunks;
+    tsk_size_t num_mutations, mut_samples_offset, num_node_chunks, mut_offset;
     int stack_top;
 
     // Get the number of mutations and the top mutation node
     num_mutations = 0;
     top_mut_node = 0;
     for (tsk_size_t s = 0; s < num_sites; s++) {
-        site = &sites[s];
+        site = &tree_sites[s];
         for (tsk_size_t m = 0; m < site->mutations_length; m++) {
             num_mutations++;
             if (site->mutations[m].node > top_mut_node) {
@@ -219,8 +216,7 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     }
 
     mut_samples = tsk_calloc(num_mutations * num_sample_chunks, sizeof(*mut_samples));
-    num_nodes = tsk_treeseq_get_num_nodes(self);
-    num_node_chunks = BIT_ARRAY_NUM_CHUNKS(num_nodes);
+    num_node_chunks = BIT_ARRAY_NUM_CHUNKS(tsk_treeseq_get_num_nodes(self));
 
     node_paths = tsk_calloc(num_node_chunks * num_mutations, sizeof(*node_paths));
 
@@ -235,6 +231,10 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
     stack_top = 0;
     stack[stack_top] = parent[top_mut_node];
 
+    // Current position minus num ancestral alleles to this point, if there are any sites
+    mut_offset
+        = num_sites ? site_offsets[tree_sites[0].id] - (tsk_size_t) tree_sites[0].id : 0;
+
     // Traverse the current tree, tracking which samples are under each mutation
     while (stack_top >= 0) {
         node = stack[stack_top];
@@ -242,14 +242,7 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
         for (tsk_size_t m = 0; m < num_mutations; m++) {
             path = GET_2D_ROW(node_paths, num_node_chunks, m);
             mut_samples_row = GET_2D_ROW(mut_samples, num_sample_chunks, m);
-            if (mut_nodes[m + *mut_offset] == node) {
-                add_bit_to_bit_array(path, (tsk_bit_array_t) node);
-                if (flags[node] & TSK_NODE_IS_SAMPLE) {
-                    add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
-                }
-            }
-            // TODO, can this be converted to an or?
-            if (node_in_array(path, parent[node])) {
+            if (mut_nodes[m + mut_offset] == node || node_in_array(path, parent[node])) {
                 add_bit_to_bit_array(path, (tsk_bit_array_t) node);
                 if (flags[node] & TSK_NODE_IS_SAMPLE) {
                     add_bit_to_bit_array(mut_samples_row, (tsk_bit_array_t) node);
@@ -263,18 +256,15 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
             u = left_sib[u];
         }
     }
-    state_offset = 0;
-    // TODO: get rid of the global offsets
-    // TODO: don't we only want to do this from the current site offset onwards??
+
+    mut_samples_offset = 0;
     for (tsk_size_t s = 0; s < num_sites; s++) {
-        site = &self->tree_sites[tree_index][s];
+        site = &tree_sites[s];
 
-        mut_samples_row = GET_2D_ROW(mut_samples, num_sample_chunks, state_offset);
-        state_offset += self->site_mutations_length[site->id];
+        mut_samples_row = GET_2D_ROW(mut_samples, num_sample_chunks, mut_samples_offset);
+        mut_samples_offset += self->site_mutations_length[site->id];
 
-        out_row = GET_2D_ROW(*mut_allele_samples, num_sample_chunks, *out_offset);
-        *out_offset += self->site_mutations_length[site->id] + 1;
-        *mut_offset += self->site_mutations_length[site->id];
+        out_row = GET_2D_ROW(*allele_samples, num_sample_chunks, site_offsets[site->id]);
         get_allele_samples(site, num_sample_chunks, mut_samples_row, out_row,
             &(*num_alleles)[site->id]);
     }
@@ -363,13 +353,13 @@ sample_weights_to_bit_array(const double *weights, tsk_size_t num_sample_sets,
     }
 }
 
-// TODO: should site_1/2 be an id_t?
+// TODO: should site_a/b be an id_t?
 int
-compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset,
-    tsk_size_t site_2, tsk_size_t site_2_offset, tsk_size_t num_sample_chunks,
+compute_general_two_site_stat_result(tsk_size_t site_a, tsk_size_t site_a_offset,
+    tsk_size_t site_b, tsk_size_t site_b_offset, tsk_size_t num_sample_chunks,
     const tsk_size_t *num_alleles, const tsk_bit_array_t *state, tsk_size_t state_dim,
     tsk_bit_array_t *sample_sets, tsk_size_t result_dim, general_stat_func_t *f,
-    void *f_params, norm_func_t *norm_func, const double *total_weight, bool polarised,
+    void *f_params, norm_func_t *norm_f, const double *total_weight, bool polarised,
     tsk_flags_t TSK_UNUSED(options), double *result, bool print_weights)
 {
     int ret = 0;
@@ -380,24 +370,23 @@ compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset
         ss_AB_samples[num_sample_chunks], AB_samples[num_sample_chunks];
     uint8_t polarised_val = polarised ? 1 : 0;
 
-    // TODO: naming of hap_weights?
-    double hap_weights[3 * state_dim];
-    double hap_norm[state_dim];
+    double weights[3 * state_dim];
+    double norm[state_dim];
     double *hap_weight_row;
-    tsk_size_t row_len = num_alleles[site_2] * state_dim;
+    tsk_size_t row_len = num_alleles[site_b] * state_dim;
     // TODO: is this stack allocation dangerous??
-    double result_tmp[row_len * num_alleles[site_1]];
+    double result_tmp[row_len * num_alleles[site_a]];
     double *result_tmp_row;
 
-    for (tsk_size_t mut_1 = polarised_val; mut_1 < num_alleles[site_1]; mut_1++) {
+    for (tsk_size_t mut_1 = polarised_val; mut_1 < num_alleles[site_a]; mut_1++) {
         result_tmp_row = GET_2D_ROW(result_tmp, row_len, mut_1);
-        for (tsk_size_t mut_2 = polarised_val; mut_2 < num_alleles[site_2]; mut_2++) {
-            A_samples = GET_2D_ROW(state, num_sample_chunks, site_1_offset + mut_1);
-            B_samples = GET_2D_ROW(state, num_sample_chunks, site_2_offset + mut_2);
+        for (tsk_size_t mut_2 = polarised_val; mut_2 < num_alleles[site_b]; mut_2++) {
+            A_samples = GET_2D_ROW(state, num_sample_chunks, site_a_offset + mut_1);
+            B_samples = GET_2D_ROW(state, num_sample_chunks, site_b_offset + mut_2);
             intersect_bit_array(A_samples, B_samples, AB_samples, num_sample_chunks);
             for (tsk_size_t k = 0; k < state_dim; k++) {
                 ss_row = GET_2D_ROW(sample_sets, num_sample_chunks, k);
-                hap_weight_row = GET_2D_ROW(hap_weights, 3, k);
+                hap_weight_row = GET_2D_ROW(weights, 3, k);
 
                 intersect_bit_array(A_samples, ss_row, ss_A_samples, num_sample_chunks);
                 intersect_bit_array(B_samples, ss_row, ss_B_samples, num_sample_chunks);
@@ -413,23 +402,22 @@ compute_general_two_site_stat_result(tsk_size_t site_1, tsk_size_t site_1_offset
                 hap_weight_row[2] = (double) (w_B - w_AB); // w_aB
 
                 if (print_weights) {
-                    printf("%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n", site_1, site_2,
+                    printf("%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n", site_a, site_b,
                         mut_1, mut_2, w_AB, (tsk_size_t) hap_weight_row[1],
                         (tsk_size_t) hap_weight_row[2], (tsk_size_t) total_weight[k]);
                 }
             }
-            ret = f(state_dim, hap_weights, result_dim, result_tmp_row, f_params);
+            ret = f(state_dim, weights, result_dim, result_tmp_row, f_params);
             if (ret != 0) {
                 goto out;
             }
-            ret = norm_func(state_dim, hap_weights, num_alleles[site_1] - polarised_val,
-                num_alleles[site_2] - polarised_val, hap_norm, f_params);
+            ret = norm_f(state_dim, weights, num_alleles[site_a] - polarised_val,
+                num_alleles[site_b] - polarised_val, norm, f_params);
             if (ret != 0) {
                 goto out;
             }
-            // TODO: should be setting result for each sample set (result[k])
             for (tsk_size_t k = 0; k < state_dim; k++) {
-                *result += result_tmp_row[k] * hap_norm[k];
+                result[k] += result_tmp_row[k] * norm[k];
             }
             result_tmp_row += state_dim; // Advance to the next column
         }
@@ -441,7 +429,8 @@ out:
 
 int
 get_all_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t num_sample_chunks,
-    tsk_size_t *num_alleles, tsk_bit_array_t **mut_allele_samples)
+    const tsk_size_t *site_offsets, tsk_size_t *num_alleles,
+    tsk_bit_array_t **allele_samples)
 {
     int ret = 0;
     const tsk_size_t num_nodes = self->tables->nodes.num_rows;
@@ -469,7 +458,7 @@ get_all_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t num_sample_
     tsk_memset(left_sib, 0xff, num_nodes * sizeof(*left_sib));
     tsk_memset(right_sib, 0xff, num_nodes * sizeof(*right_sib));
 
-    tsk_size_t tree_index, out_offset, mut_offset;
+    tsk_size_t tree_index;
     double t_left, t_right;
     tsk_id_t tj, tk, h, u, v, c;
 
@@ -477,8 +466,6 @@ get_all_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t num_sample_
     tk = 0;
     t_left = 0;
     tree_index = 0;
-    out_offset = 0;
-    mut_offset = 0;
     while (tj < num_edges || t_left < sequence_length) {
         while (tk < num_edges && edge_right[edges_out[tk]] == t_left) {
             h = edges_out[tk];
@@ -528,7 +515,7 @@ get_all_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t num_sample_
         }
 
         get_mutation_samples(self, tree_index, num_sample_chunks, right_child, left_sib,
-            parent, &out_offset, &mut_offset, mut_allele_samples, &num_alleles);
+            parent, site_offsets, allele_samples, &num_alleles);
 
         tree_index++;
         t_left = t_right;
@@ -565,12 +552,12 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     tsk_size_t *restrict num_alleles = tsk_malloc(num_sites * sizeof(*num_alleles));
     tsk_bit_array_t *restrict sample_sets
         = tsk_calloc(num_sample_chunks * state_dim, sizeof(*sample_sets));
-    tsk_bit_array_t *mut_allele_samples
-        = tsk_calloc(max_alleles * num_sample_chunks, sizeof(*mut_allele_samples));
+    tsk_bit_array_t *allele_samples
+        = tsk_calloc(max_alleles * num_sample_chunks, sizeof(*allele_samples));
     tsk_bit_array_t all_samples_bits[num_sample_chunks];
 
     if (site_offsets == NULL || num_alleles == NULL || sample_sets == NULL
-        || mut_allele_samples == NULL) {
+        || allele_samples == NULL) {
         ret = TSK_ERR_NO_MEMORY;
         goto out;
     }
@@ -579,23 +566,23 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     // instead of all samples
     get_all_samples_bits(all_samples_bits, num_samples, num_sample_chunks);
 
-    // Initialize the mutation sample tracking with all samples in the
-    // ancestral allele
-    // TODO: rework this slightly to use the site offsets array
     tsk_bit_array_t *allele_samples_row;
-    tsk_size_t num_muts_cumsum = 0;
+    tsk_size_t num_alleles_cumsum = 0;
     for (tsk_size_t t = 0; t < self->num_trees; t++) {
         for (tsk_size_t s = 0; s < self->tree_sites_length[t]; s++) {
+            tsk_id_t site_id = self->tree_sites[t][s].id;
+            // Initialize the allele_samples with all samples in the ancestral allele
             allele_samples_row
-                = GET_2D_ROW(mut_allele_samples, num_sample_chunks, num_muts_cumsum);
+                = GET_2D_ROW(allele_samples, num_sample_chunks, num_alleles_cumsum);
             add_bit_arrays(allele_samples_row, all_samples_bits, num_sample_chunks);
-            site_offsets[self->tree_sites[t][s].id] = num_muts_cumsum;
-            num_muts_cumsum
-                += self->site_mutations_length[self->tree_sites[t][s].id] + 1;
+            // Store the allele offset for each site
+            site_offsets[site_id] = num_alleles_cumsum;
+            num_alleles_cumsum += self->site_mutations_length[site_id] + 1;
         }
     }
 
-    get_all_mutation_samples(self, num_sample_chunks, num_alleles, &mut_allele_samples);
+    get_all_mutation_samples(
+        self, num_sample_chunks, site_offsets, num_alleles, &allele_samples);
 
     // Number of pairs w/ replacement (sites)
     *num_stat = (num_sites * (1 + num_sites)) >> (tsk_size_t) 1;
@@ -631,15 +618,15 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
         goto out;
     }
 
-    tsk_size_t inner = 0, site_1_offset = 0, site_2_offset = 0, result_offset = 0;
-    for (tsk_size_t site_1 = 0; site_1 < num_sites; site_1++) {
-        site_1_offset = site_offsets[site_1];
-        for (tsk_size_t site_2 = inner; site_2 < num_sites; site_2++) {
-            site_2_offset = site_offsets[site_2];
-            ret = compute_general_two_site_stat_result(site_1, site_1_offset, site_2,
-                site_2_offset, num_sample_chunks, num_alleles, mut_allele_samples,
-                state_dim, sample_bits, result_dim, f, f_params, norm_func, total_weight,
-                polarised, options, &((*result)[result_offset]), print_weights);
+    tsk_size_t inner = 0, site_a_offset = 0, site_b_offset = 0, result_offset = 0;
+    for (tsk_size_t site_a = 0; site_a < num_sites; site_a++) {
+        site_a_offset = site_offsets[site_a];
+        for (tsk_size_t site_b = inner; site_b < num_sites; site_b++) {
+            site_b_offset = site_offsets[site_b];
+            ret = compute_general_two_site_stat_result(site_a, site_a_offset, site_b,
+                site_b_offset, num_sample_chunks, num_alleles, allele_samples, state_dim,
+                sample_bits, result_dim, f, f_params, norm_func, total_weight, polarised,
+                options, &((*result)[result_offset]), print_weights);
             if (ret != 0) {
                 goto out;
             }
@@ -660,8 +647,8 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
         }
     }
 out:
-    if (mut_allele_samples != NULL) {
-        free(mut_allele_samples);
+    if (allele_samples != NULL) {
+        free(allele_samples);
     }
     if (site_offsets != NULL) {
         free(site_offsets);
