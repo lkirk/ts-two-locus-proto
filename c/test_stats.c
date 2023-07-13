@@ -69,8 +69,8 @@ test_D(void)
         get_path_to_tree(test_cases[i], tree_path);
         process_tree(D, tree_path, &result, &num_stat, false);
         assert_results_equal_truth(D_truth[i], result, num_stat);
+        tsk_safe_free(result);
     }
-    tsk_safe_free(result);
 }
 
 static void
@@ -83,8 +83,8 @@ test_D2(void)
         get_path_to_tree(test_cases[i], tree_path);
         process_tree(D2, tree_path, &result, &num_stat, false);
         assert_results_equal_truth(D2_truth[i], result, num_stat);
+        tsk_safe_free(result);
     }
-    tsk_safe_free(result);
 }
 
 static void
@@ -97,8 +97,8 @@ test_r2(void)
         get_path_to_tree(test_cases[i], tree_path);
         process_tree(r2, tree_path, &result, &num_stat, false);
         assert_results_equal_truth(r2_truth[i], result, num_stat);
+        tsk_safe_free(result);
     }
-    tsk_safe_free(result);
 }
 
 static void
@@ -111,8 +111,8 @@ test_D_prime(void)
         get_path_to_tree(test_cases[i], tree_path);
         process_tree(D_prime, tree_path, &result, &num_stat, false);
         assert_results_equal_truth(D_prime_truth[i], result, num_stat);
+        tsk_safe_free(result);
     }
-    tsk_safe_free(result);
 }
 
 static void
@@ -125,8 +125,8 @@ test_r(void)
         get_path_to_tree(test_cases[i], tree_path);
         process_tree(r, tree_path, &result, &num_stat, false);
         assert_results_equal_truth(r_truth[i], result, num_stat);
+        tsk_safe_free(result);
     }
-    tsk_safe_free(result);
 }
 
 static void
@@ -139,8 +139,8 @@ test_Dz(void)
         get_path_to_tree(test_cases[i], tree_path);
         process_tree(Dz, tree_path, &result, &num_stat, false);
         assert_results_equal_truth(Dz_truth[i], result, num_stat);
+        tsk_safe_free(result);
     }
-    tsk_safe_free(result);
 }
 
 static void
@@ -153,8 +153,8 @@ test_pi2(void)
         get_path_to_tree(test_cases[i], tree_path);
         process_tree(pi2, tree_path, &result, &num_stat, false);
         assert_results_equal_truth(pi2_truth[i], result, num_stat);
+        tsk_safe_free(result);
     }
-    tsk_safe_free(result);
 }
 
 int

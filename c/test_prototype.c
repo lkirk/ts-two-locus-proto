@@ -108,6 +108,8 @@ test_sample_weights_to_bit_array(void)
     for (tsk_size_t i = 0; i < num_sample_sets; i++) {
         CU_ASSERT_EQUAL(total_weight[i], total_truth[i]);
     }
+    free(sample_bits);
+    free(total_weight);
 }
 
 static void
