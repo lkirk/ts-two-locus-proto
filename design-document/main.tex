@@ -235,10 +235,12 @@ tree diffs + tree traversals take ~7.5 seconds and about 750M of memory.
 \subsection{Computing results}\label{section:computing_results}
 
 Given our matrix of alleles $\times$ samples, two focal sites, and our sample
-sets, we summarize the data into the desired statistics. We achieve this by
-iterating over all pairs of allele states for the two sites (skipping the
-ancestral allele state if polarized). For each pair, we compute the allele
-weights ($w\_AB$, $w\_Ab$, and $w\_aB$), which get passed into the summary
+sets, we summarize the data into the desired statistics. To compute our
+statistics, we iterate over all pairs of allele states for the two sites
+(skipping the ancestral allele state if polarized). We denote the the left
+allele as $A$ and the right allele as $B$, and the absence of these alleles as
+$a$ and $b$, respectively. For each pair, we compute the allele weights
+($w\_AB$, $w\_Ab$, and $w\_aB$), which get passed into the summary
 function. After we compute the stat result from the summary function, we
 normalize the statistic with the selected normalization function
 (see~\ref{section:normalization} for more on normalization). Throughout this
@@ -333,8 +335,8 @@ $D^{\prime}$, $r$ and $r^{2}$.
   \sum_{i=1}^{n}\sum_{j=1}^{m}p(A_{i}B_{j})F_{ij}
 \]
 where $F$ is the summary function and $p(A_{i}B_{j})$ is the frequency of
-haplotype $A_{i}B_{j}$. This method can be found
-in~\cite{zhao2007evaluation}.
+haplotype $A_{i}B_{j}$. This method was first introduced in
+~\cite{karlin_statistical_1981}, and was reviewed in~\cite{zhao2007evaluation}.
 
 \subsubsection{Allele Frequency Weighted}
 In the ``Allele Frequency'' normalization method, we weight the statistics by
@@ -413,10 +415,10 @@ state number 0.
 \end{table}
 
 \subsubsection{Results}
-Here, we provide results for a few common statistics, exercising the diversity
-of strategies for normalization and polarization. The biallelic cases are useful
-for verifying the correctness of $r$ and $D$. We also obtain the expected
-results in multiallelic cases in $r^2$.
+Here we provide LD matricies (diagonals are site compared with itself) for a few
+common statistics, exercising the diversity of strategies for normalization and
+polarization. The biallelic cases are useful for verifying the correctness of
+$r$ and $D$. We also obtain the expected results in multiallelic cases in $r^2$.
 
 \begin{table}[H]
   \begin{tabular}{lc} Name & Result \\
@@ -507,6 +509,11 @@ results in multiallelic cases in $r^2$.
     $r^2$ is unpolarized and normalized by haplotype weighting.
   }
 \end{table}
+
+We are also generating test data with
+\href{https://github.com/lkirk/ts-two-locus-proto/blob/main/notebooks/TestCases.ipynb}{this}
+jupyter notebook. These trees have been tested between the python prototype and
+the c prototype.
 
 \section{Prototypes}
 The prototype code repo can be found
