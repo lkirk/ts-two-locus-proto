@@ -292,25 +292,26 @@ norm_hap_weighted(tsk_size_t state_dim, const double *hap_weights,
     return 0;
 }
 
-static int
-norm_af_weighted(tsk_size_t state_dim, const double *hap_weights,
-    tsk_size_t TSK_UNUSED(n_a), tsk_size_t TSK_UNUSED(n_b), double *result, void *params)
-{
-    sample_count_stat_params_t args = *(sample_count_stat_params_t *) params;
-    const double *weight_row;
-    double p_A;
-    double p_B;
-    double n;
-    for (tsk_size_t k = 0; k < state_dim; k++) {
-        weight_row = GET_2D_ROW(hap_weights, 3, k);
-        n = (double) args.sample_set_sizes[k];
-        // TODO: what to do when n = 0
-        p_A = (weight_row[0] + weight_row[1]) / n;
-        p_B = (weight_row[0] + weight_row[2]) / n;
-        result[k] = p_A * p_B;
-    }
-    return 0;
-}
+/* static int */
+/* norm_af_weighted(tsk_size_t state_dim, const double *hap_weights, */
+/*     tsk_size_t TSK_UNUSED(n_a), tsk_size_t TSK_UNUSED(n_b), double *result, void
+ * *params) */
+/* { */
+/*     sample_count_stat_params_t args = *(sample_count_stat_params_t *) params; */
+/*     const double *weight_row; */
+/*     double p_A; */
+/*     double p_B; */
+/*     double n; */
+/*     for (tsk_size_t k = 0; k < state_dim; k++) { */
+/*         weight_row = GET_2D_ROW(hap_weights, 3, k); */
+/*         n = (double) args.sample_set_sizes[k]; */
+/*         // TODO: what to do when n = 0 */
+/*         p_A = (weight_row[0] + weight_row[1]) / n; */
+/*         p_B = (weight_row[0] + weight_row[2]) / n; */
+/*         result[k] = p_A * p_B; */
+/*     } */
+/*     return 0; */
+/* } */
 
 static int
 norm_total_weighted(tsk_size_t state_dim, const double *TSK_UNUSED(hap_weights),
@@ -539,7 +540,7 @@ out:
 int
 two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     const double *sample_weights, tsk_size_t result_dim, general_stat_func_t *f,
-    void *f_params, tsk_size_t TSK_UNUSED(num_windows),
+    norm_func_t *norm_f, void *f_params, tsk_size_t TSK_UNUSED(num_windows),
     const double *TSK_UNUSED(windows), tsk_flags_t options, double **result,
     tsk_size_t *num_stat, bool print_weights)
 {
@@ -605,19 +606,6 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
         polarised = true;
     }
 
-    norm_func_t *norm_func;
-    if (options & TSK_HAP_WEIGHTED) {
-        norm_func = norm_hap_weighted;
-    } else if (options & TSK_AF_WEIGHTED) {
-        norm_func = norm_af_weighted;
-    } else if (options & TSK_TOTAL_WEIGHTED) {
-        norm_func = norm_total_weighted;
-    } else {
-        // TODO: maybe we should have a "bad normalisation strategy" error??
-        ret = TSK_ERR_BAD_PARAM_VALUE;
-        goto out;
-    }
-
     tsk_size_t inner = 0, site_a_offset = 0, site_b_offset = 0, result_offset = 0;
     for (tsk_size_t site_a = 0; site_a < num_sites; site_a++) {
         site_a_offset = site_offsets[site_a];
@@ -625,7 +613,7 @@ two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
             site_b_offset = site_offsets[site_b];
             ret = compute_general_two_site_stat_result(site_a, site_a_offset, site_b,
                 site_b_offset, num_sample_chunks, num_alleles, allele_samples, state_dim,
-                sample_bits, result_dim, f, f_params, norm_func, total_weight, polarised,
+                sample_bits, result_dim, f, f_params, norm_f, total_weight, polarised,
                 options, &((*result)[result_offset]), print_weights);
             if (ret != 0) {
                 goto out;
@@ -664,25 +652,25 @@ out:
     return ret;
 }
 
-static tsk_flags_t
+static norm_func_t *
 pick_norm_strategy(summary_func *func)
 {
     if (func == D) {
-        return TSK_TOTAL_WEIGHTED;
+        return norm_total_weighted;
     } else if (func == D2) {
-        return TSK_TOTAL_WEIGHTED;
+        return norm_total_weighted;
     } else if (func == r2) {
-        return TSK_HAP_WEIGHTED;
+        return norm_hap_weighted;
     } else if (func == D_prime) {
-        return TSK_HAP_WEIGHTED;
+        return norm_hap_weighted;
     } else if (func == r) {
-        return TSK_TOTAL_WEIGHTED;
+        return norm_total_weighted;
     } else if (func == Dz) {
-        return TSK_TOTAL_WEIGHTED;
+        return norm_total_weighted;
     } else if (func == pi2) {
-        return TSK_TOTAL_WEIGHTED;
+        return norm_total_weighted;
     }
-    return 0;
+    return NULL;
 }
 
 static bool
@@ -710,8 +698,15 @@ int
 process_tree(summary_func *summary_function, const char *tree_filename, double **result,
     tsk_size_t *num_stat, bool print_weights)
 {
+    int ret = 0;
+    norm_func_t *norm_func = pick_norm_strategy(summary_function); // TODO: check if null
+    if (norm_func == NULL) {
+        // TODO: maybe we should have a "bad normalisation strategy" error??
+        ret = TSK_ERR_BAD_PARAM_VALUE;
+        puts(tsk_strerror(ret));
+        exit(1);
+    }
     tsk_flags_t options = 0;
-    options |= pick_norm_strategy(summary_function);
     if (pick_polarisation(summary_function)) {
         options |= TSK_STAT_POLARISED;
     }
@@ -740,9 +735,9 @@ process_tree(summary_func *summary_function, const char *tree_filename, double *
         .sample_set_sizes = sample_set_sizes,
         .set_indexes = set_indexes };
 
-    int ret
-        = two_site_general_stat(&ts, num_sample_sets, sample_weights, num_sample_sets,
-            summary_function, &args, 0, NULL, options, result, num_stat, print_weights);
+    ret = two_site_general_stat(&ts, num_sample_sets, sample_weights, num_sample_sets,
+        summary_function, norm_func, &args, 0, NULL, options, result, num_stat,
+        print_weights);
 
     if (ret != 0) {
         puts(tsk_strerror(ret));

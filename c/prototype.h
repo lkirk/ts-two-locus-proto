@@ -9,9 +9,6 @@ typedef uint32_t tsk_bit_array_t;
     (((n) >> BIT_ARRAY_CHUNK) + (((n) % BIT_ARRAY_NUM_BITS) ? 1 : 0))
 
 #define GET_2D_ROW(array, row_len, row) (array + (((size_t) (row_len)) * (size_t) row))
-#define TSK_HAP_WEIGHTED (1 << 13)
-#define TSK_AF_WEIGHTED (1 << 14)
-#define TSK_TOTAL_WEIGHTED (1 << 15)
 
 typedef int(summary_func)(tsk_size_t, const double *, tsk_size_t, double *, void *);
 
@@ -47,8 +44,8 @@ void get_all_samples_bits(
 
 int two_site_general_stat(const tsk_treeseq_t *self, tsk_size_t state_dim,
     const double *sample_weights, tsk_size_t result_dim, general_stat_func_t *f,
-    void *f_params, tsk_size_t num_windows, const double *windows, tsk_flags_t options,
-    double **result, tsk_size_t *num_stat, bool print_weights);
+    norm_func_t *norm_f, void *f_params, tsk_size_t num_windows, const double *windows,
+    tsk_flags_t options, double **result, tsk_size_t *num_stat, bool print_weights);
 
 void sample_weights_to_bit_array(const double *weights, tsk_size_t num_sample_sets,
     tsk_size_t num_samples, tsk_size_t num_sample_chunks, double **total_weight,
