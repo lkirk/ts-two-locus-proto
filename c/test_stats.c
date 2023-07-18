@@ -11,9 +11,9 @@
 #include "testlib.h"
 #include "prototype.h"
 
-const char *test_cases[]
-    = { "case1.tree", "case2.tree", /* "case3.tree",  */ "case4.tree", "case5.tree",
-          "case6.tree", "case7.tree", "case11.tree", NULL };
+const char *test_cases[] = { "case1.tree", "case2.tree",
+    /* "case3.tree",  */ "case4.tree", "case5.tree", "case6.tree", "case7.tree",
+    "case8.tree", "case9.tree", "case10.tree", "case11.tree", NULL };
 
 // Caution, the below string/path code is not exactly robust/portable/safe! but it works
 // for this limited purpose
