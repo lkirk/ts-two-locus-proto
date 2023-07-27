@@ -144,7 +144,7 @@ main(int argc, char **argv)
 
     fprintf(stdout, "Subcommand: '%s'\n", subcommand == NEW_SUBCOMMAND ? "new" : "old");
 
-    summary_func *func;
+    summary_func *func = NULL;
     if (subcommand == NEW_SUBCOMMAND) {
         if ((func = pick_summary_func(summary_func_name)) == NULL) {
             die("ERROR: unknown summary func name: %s\n", summary_func_name);
@@ -177,8 +177,8 @@ main(int argc, char **argv)
 
     switch (subcommand) {
         case NEW_SUBCOMMAND:
-            ret = tsk_treeseq_D(&ts, num_sample_sets, sample_set_sizes, sample_sets, 0,
-                NULL, 0, NULL, 0, &result_size, &result);
+            ret = func(&ts, num_sample_sets, sample_set_sizes, sample_sets, 0, NULL, 0,
+                NULL, 0, &result_size, &result);
             break;
         case OLD_SUBCOMMAND:
             result = tsk_calloc(expected_result_size, sizeof(*result));
