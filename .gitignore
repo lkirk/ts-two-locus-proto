@@ -4,6 +4,9 @@
 c/subprojects/*
 !c/subprojects/*.wrap
 !c/subprojects/packagefiles
+benchmarks/subprojects/*
+!benchmarks/subprojects/*.wrap
+!benchmarks/subprojects/packagefiles
 *.gdb_history
 *.cache
 *.egg-info
