@@ -1,3 +1,4 @@
+#include "tskit/core.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -11,8 +12,9 @@
 static void
 usage(char *progname)
 {
-    fprintf(
-        stderr, "usage: %s <subcommand> -t <input_tree> -s <summary_func>\n", progname);
+    fprintf(stderr,
+        "usage: %s <subcommand> -t <input_tree> -s [summary_func] -o [out_file]\n",
+        progname);
     exit(EXIT_FAILURE);
 }
 
@@ -68,22 +70,26 @@ pick_summary_func(const char *func_name)
 
 static void
 parse_args(int argc, char **argv, uint32_t *subcommand, char **tree_filename,
-    char **summary_func_name)
+    char **out_filename, char **summary_func_name)
 {
     int flag;
     bool posix_set = false;
 
-    // make getopt behave!
+    // make getopt behave, however avoid posix behavior everywhere else unless explicitly
+    // specified
     if (!!getenv("POSIXLY_CORRECT")) {
         posix_set = true;
     } else {
         setenv("POSIXLY_CORRECT", "", 0);
     }
     while (optind < argc) {
-        if ((flag = getopt(argc, argv, "t:s:h")) != -1) {
+        if ((flag = getopt(argc, argv, "t:s:o:h")) != -1) {
             switch (flag) {
                 case 't':
                     *tree_filename = optarg;
+                    break;
+                case 'o':
+                    *out_filename = optarg;
                     break;
                 case 's':
                     *summary_func_name = optarg;
@@ -137,10 +143,12 @@ int
 main(int argc, char **argv)
 {
     char *tree_filename = NULL;
+    char *out_filename = NULL;
     char *summary_func_name = NULL;
     uint32_t subcommand = 0;
 
-    parse_args(argc, argv, &subcommand, &tree_filename, &summary_func_name);
+    parse_args(
+        argc, argv, &subcommand, &tree_filename, &out_filename, &summary_func_name);
 
     fprintf(stdout, "Subcommand: '%s'\n", subcommand == NEW_SUBCOMMAND ? "new" : "old");
 
@@ -172,8 +180,8 @@ main(int argc, char **argv)
     int ret = 0;
     double *result;
     tsk_size_t result_size;
-    tsk_size_t expected_result_size
-        = (ts.tables->sites.num_rows * (ts.tables->sites.num_rows + 1) / 2UL);
+    tsk_size_t num_sites = ts.tables->sites.num_rows;
+    tsk_size_t expected_result_size = (num_sites * (num_sites + 1) / 2UL);
 
     switch (subcommand) {
         case NEW_SUBCOMMAND:
@@ -199,6 +207,24 @@ main(int argc, char **argv)
 
     if (ret != 0) {
         puts(tsk_strerror(ret));
+        return ret;
+    }
+
+    if (out_filename) {
+        FILE *out_fp = fopen(out_filename, "w");
+        tsk_size_t row_len = num_sites;
+        tsk_size_t val = 0;
+        while (val < expected_result_size) {
+            for (tsk_size_t col = 0; col < row_len - 1; col++) {
+                fprintf(out_fp, "%.*g\t", DBL_DECIMAL_DIG, result[val]);
+                /* fprintf(out_fp, "%lu\t", val); */
+                val++;
+            }
+            fprintf(out_fp, "%.*g\n", DBL_DECIMAL_DIG, result[val]);
+            /* fprintf(out_fp, "%lu\n", val); */
+            val++;
+            row_len--;
+        }
     }
 
     return ret;
