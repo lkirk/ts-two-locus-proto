@@ -1,6 +1,6 @@
-diff --git a/home/lkirk/repo/lkirk-tskit/c/tskit/core.c b/tskit/core.c
+diff --git a/tskit/core.c b/tskit/core.c
 index 78a01de..f6e70f4 100644
---- a/home/lkirk/repo/lkirk-tskit/c/tskit/core.c
+--- a/tskit/core.c
 +++ b/tskit/core.c
 @@ -1231,21 +1231,35 @@ tsk_id_in_array(tsk_bit_array_t *a, const tsk_id_t node)
      return tsk_bit_in_array(a, (tsk_bit_array_t) node);
@@ -48,9 +48,9 @@ index 78a01de..f6e70f4 100644
      }
 +#endif
  }
-diff --git a/home/lkirk/repo/lkirk-tskit/c/tskit/core.h b/tskit/core.h
+diff --git a/tskit/core.h b/tskit/core.h
 index d823b58..c417510 100644
---- a/home/lkirk/repo/lkirk-tskit/c/tskit/core.h
+--- a/tskit/core.h
 +++ b/tskit/core.h
 @@ -1010,9 +1010,14 @@ void tsk_set_debug_stream(FILE *f);
  FILE *tsk_get_debug_stream(void);
@@ -68,9 +68,9 @@ index d823b58..c417510 100644
  #define TSK_BIT_ARRAY_NUM_BITS ((tsk_bit_array_t) 1 << TSK_BIT_ARRAY_CHUNK)
  #define TSK_BIT_ARRAY_NUM_CHUNKS(n)                                                     \
      (((n) >> TSK_BIT_ARRAY_CHUNK) + (((n) % TSK_BIT_ARRAY_NUM_BITS) ? 1 : 0))
-diff --git a/home/lkirk/repo/lkirk-tskit/c/meson.build b/meson.build
+diff --git a/meson.build b/meson.build
 index b93059d..a3a42b6 100644
---- a/home/lkirk/repo/lkirk-tskit/c/meson.build
+--- a/meson.build
 +++ b/meson.build
 @@ -16,7 +16,7 @@ extra_c_args = [
      '-Wmissing-prototypes',  '-Wstrict-prototypes',
