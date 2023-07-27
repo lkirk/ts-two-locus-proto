@@ -1,3 +1,0 @@
-#!/bin/sh
-
-python -m doctest -v two_locus_proto/site.py ${@}
