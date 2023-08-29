@@ -124,7 +124,7 @@ parse_args(int argc, char **argv, uint32_t *subcommand, char **tree_filename,
             die_usage(argv[0], "ERROR: one subcommand 'new' or 'old' must be set\n");
             break;
         case NEW_SUBCOMMAND:
-            if (!summary_func_name) {
+            if (!*summary_func_name) {
                 die_usage(
                     argv[0], "ERROR: summary function (-s) is a required argument\n");
             }
@@ -182,6 +182,7 @@ main(int argc, char **argv)
     tsk_size_t result_size;
     tsk_size_t num_sites = ts.tables->sites.num_rows;
     tsk_size_t expected_result_size = (num_sites * (num_sites + 1) / 2UL);
+    double *result_orig;
 
     switch (subcommand) {
         case NEW_SUBCOMMAND:
@@ -190,14 +191,18 @@ main(int argc, char **argv)
             break;
         case OLD_SUBCOMMAND:
             result = tsk_calloc(expected_result_size, sizeof(*result));
+            result_orig = result;
             result_size = 0;
             for (tsk_size_t site = 0; site < ts.tables->sites.num_rows; site++) {
                 tsk_ld_calc_t ld_calc;
                 tsk_ld_calc_init(&ld_calc, &ts);
                 result += result_size;
+                result[0] = 1;
+                result++;
                 ret = tsk_ld_calc_get_r2_array(&ld_calc, (tsk_id_t) site,
                     TSK_DIR_FORWARD, UINT64_MAX, FLT_MAX, result, &result_size);
             }
+            result = result_orig;
             break;
         default:
             die("ERROR: unknown subcommand %d\n", subcommand);
