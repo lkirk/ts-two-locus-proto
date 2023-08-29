@@ -1,0 +1,138 @@
+diff --git a/tskit/trees.c b/tskit/trees.c
+index 8d885e0..fc856bb 100644
+--- a/tskit/trees.c
++++ b/tskit/trees.c
+@@ -1483,7 +1483,7 @@ get_allele_weights(const tsk_site_t *site, const double *state, tsk_size_t state
+             allele_row[k] += state_row[k];
+         }
+ 
+-        /* Get the index for the alternate allele that we must substract from */
++        /* Get the index for the alternate allele that we must subtract from */
+         alt_allele = site->ancestral_state;
+         alt_allele_length = site->ancestral_state_length;
+         if (mutation.parent != TSK_NULL) {
+@@ -2193,7 +2193,7 @@ get_allele_samples(const tsk_site_t *site, const tsk_bit_array_t *state,
+         tsk_bit_array_get_row(state, mutation_index, &state_row);
+         tsk_bit_array_add(&allele_samples_row, &state_row);
+ 
+-        /* Get the index for the alternate allele that we must substract from */
++        /* Get the index for the alternate allele that we must subtract from */
+         alt_allele = site->ancestral_state;
+         alt_allele_length = site->ancestral_state_length;
+         if (mutation.parent != TSK_NULL) {
+@@ -2222,8 +2222,7 @@ out:
+ 
+ static int
+ get_mutation_samples(const tsk_tree_t *self, const tsk_size_t *site_offsets,
+-    tsk_bit_array_t *allele_samples, tsk_size_t *restrict *num_alleles)
+-// TODO: the restricts here, not sure. Are the row declarations aliases? I think so.
++    tsk_bit_array_t *allele_samples, tsk_size_t **num_alleles)
+ {
+     int ret = 0;
+ 
+@@ -2231,18 +2230,15 @@ get_mutation_samples(const tsk_tree_t *self, const tsk_size_t *site_offsets,
+ 
+     const tsk_size_t num_samples = tsk_treeseq_get_num_samples(ts);
+     const tsk_size_t num_tree_sites = ts->tree_sites_length[self->index];
+-    const tsk_flags_t *restrict flags = ts->tables->nodes.flags;
+     const tsk_site_t *restrict tree_sites = ts->tree_sites[self->index];
++    const tsk_flags_t *restrict flags = ts->tables->nodes.flags;
+     const tsk_id_t *restrict mut_nodes = ts->tables->mutations.node;
+-    const tsk_size_t *restrict site_mutations_length = ts->site_mutations_length;
+-
+-    const tsk_id_t *restrict parent = self->parent;
+ 
+     const tsk_site_t *restrict site;
+ 
+-    tsk_bit_array_t mut_samples, mut_samples_row, node_paths, path, out_row;
++    tsk_bit_array_t mut_samples, mut_samples_row, out_row;
+     tsk_size_t num_mutations, mut_samples_offset, mut_offset;
+-    tsk_size_t s, m, i;
++    tsk_size_t s, m, n;
+ 
+     tsk_id_t node;
+     tsk_size_t num_nodes;
+@@ -2257,42 +2253,34 @@ get_mutation_samples(const tsk_tree_t *self, const tsk_size_t *site_offsets,
+     num_mutations = 0;
+     for (s = 0; s < num_tree_sites; s++) {
+         site = &tree_sites[s];
+-        for (m = 0; m < site->mutations_length; m++) {
+-            num_mutations++;
+-        }
++        num_mutations += site->mutations_length;
+     }
+ 
+-    ret = tsk_tree_preorder(self, nodes, &num_nodes);
+-    if (ret != 0) {
+-        goto out;
+-    }
+     ret = tsk_bit_array_init(&mut_samples, num_samples, num_mutations);
+     if (ret != 0) {
+         goto out;
+     }
+-    ret = tsk_bit_array_init(&node_paths, tsk_treeseq_get_num_nodes(ts), num_mutations);
+-    if (ret != 0) {
+-        goto out;
+-    }
+ 
+     // Current position minus num ancestral alleles to this point, if there are any sites
+     mut_offset = num_tree_sites
+                      ? (site_offsets[tree_sites[0].id] - (tsk_size_t) tree_sites[0].id)
+                      : 0;
+ 
+-    // Traverse the current tree, tracking which samples are under each mutation
+-    for (i = 0; i < num_nodes; i++) {
+-        node = nodes[i];
+-        for (m = 0; m < num_mutations; m++) {
+-            tsk_bit_array_get_row(&node_paths, m, &path);
+-            tsk_bit_array_get_row(&mut_samples, m, &mut_samples_row);
+-            if (mut_nodes[m + mut_offset] == node
+-                || tsk_bit_array_contains_id(&path, parent[node])) {
+-                tsk_bit_array_add_bit(&path, (tsk_bit_array_value_t) node);
+-                if (flags[node] & TSK_NODE_IS_SAMPLE) {
+-                    tsk_bit_array_add_bit(
+-                        &mut_samples_row, (tsk_bit_array_value_t) node);
+-                }
++    // Traverse down the tree, recording all samples below each mutation.
++    // We currently perform one preorder traversal per mutation, but there
++    // might be more clever ways to do this.
++    for (m = 0; m < num_mutations; m++) {
++        tsk_bit_array_get_row(&mut_samples, m, &mut_samples_row);
++
++        ret = tsk_tree_preorder_from(self, mut_nodes[m + mut_offset], nodes, &num_nodes);
++        if (ret != 0) {
++            goto out;
++        }
++
++        for (n = 0; n < num_nodes; n++) {
++            node = nodes[n];
++            if (flags[node] & TSK_NODE_IS_SAMPLE) {
++                tsk_bit_array_add_bit(&mut_samples_row, (tsk_bit_array_value_t) node);
+             }
+         }
+     }
+@@ -2302,14 +2290,13 @@ get_mutation_samples(const tsk_tree_t *self, const tsk_size_t *site_offsets,
+         site = &tree_sites[s];
+ 
+         tsk_bit_array_get_row(&mut_samples, mut_samples_offset, &mut_samples_row);
+-        mut_samples_offset += site_mutations_length[site->id];
++        mut_samples_offset += site->mutations_length;
+ 
+         tsk_bit_array_get_row(allele_samples, site_offsets[site->id], &out_row);
+         get_allele_samples(site, &mut_samples_row, &out_row, &(*num_alleles)[site->id]);
+     }
+ out:
+     tsk_bit_array_free(&mut_samples);
+-    tsk_bit_array_free(&node_paths);
+     tsk_safe_free(nodes);
+ 
+     return ret;
+@@ -2493,7 +2480,7 @@ get_all_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t *site_offse
+     int ret = 0;
+     tsk_tree_t tree;
+ 
+-    ret = tsk_tree_init(&tree, self, TSK_TS_INIT_BUILD_INDEXES);
++    ret = tsk_tree_init(&tree, self, TSK_TS_INIT_BUILD_INDEXES | TSK_NO_SAMPLE_COUNTS);
+     if (ret != 0) {
+         goto out;
+     }

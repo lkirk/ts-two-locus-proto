@@ -1,0 +1,257 @@
+diff --git a/tskit/trees.c b/tskit/trees.c
+index a79a68c..8d885e0 100644
+--- a/tskit/trees.c
++++ b/tskit/trees.c
+@@ -2221,69 +2221,68 @@ out:
+ }
+ 
+ static int
+-get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
+-    const tsk_id_t *right_child, const tsk_id_t *left_sib, const tsk_id_t *parent,
+-    const tsk_size_t *site_offsets, tsk_bit_array_t *allele_samples,
+-    tsk_size_t *restrict *num_alleles)
++get_mutation_samples(const tsk_tree_t *self, const tsk_size_t *site_offsets,
++    tsk_bit_array_t *allele_samples, tsk_size_t *restrict *num_alleles)
+ // TODO: the restricts here, not sure. Are the row declarations aliases? I think so.
+ {
+     int ret = 0;
+ 
+-    const tsk_size_t num_nodes = tsk_treeseq_get_num_nodes(self);
+-    const tsk_size_t num_samples = tsk_treeseq_get_num_samples(self);
+-    const tsk_size_t num_sites = self->tree_sites_length[tree_index];
+-    const tsk_flags_t *restrict flags = self->tables->nodes.flags;
+-    const tsk_site_t *restrict tree_sites = self->tree_sites[tree_index];
+-    const tsk_id_t *restrict mut_nodes = self->tables->mutations.node;
++    const tsk_treeseq_t *restrict ts = self->tree_sequence;
++
++    const tsk_size_t num_samples = tsk_treeseq_get_num_samples(ts);
++    const tsk_size_t num_tree_sites = ts->tree_sites_length[self->index];
++    const tsk_flags_t *restrict flags = ts->tables->nodes.flags;
++    const tsk_site_t *restrict tree_sites = ts->tree_sites[self->index];
++    const tsk_id_t *restrict mut_nodes = ts->tables->mutations.node;
++    const tsk_size_t *restrict site_mutations_length = ts->site_mutations_length;
++
++    const tsk_id_t *restrict parent = self->parent;
++
+     const tsk_site_t *restrict site;
+ 
+-    tsk_id_t u, node, top_mut_node, *stack = NULL;
+     tsk_bit_array_t mut_samples, mut_samples_row, node_paths, path, out_row;
+     tsk_size_t num_mutations, mut_samples_offset, mut_offset;
+-    tsk_size_t s, m;
+-    int stack_top;
++    tsk_size_t s, m, i;
++
++    tsk_id_t node;
++    tsk_size_t num_nodes;
++    tsk_id_t *nodes = tsk_malloc(tsk_tree_get_size_bound(self) * sizeof(*nodes));
+ 
+-    // Get the number of mutations and the top mutation node
++    if (nodes == NULL) {
++        ret = TSK_ERR_NO_MEMORY;
++        goto out;
++    }
++
++    // Get the number of mutations
+     num_mutations = 0;
+-    top_mut_node = 0;
+-    for (s = 0; s < num_sites; s++) {
++    for (s = 0; s < num_tree_sites; s++) {
+         site = &tree_sites[s];
+         for (m = 0; m < site->mutations_length; m++) {
+             num_mutations++;
+-            if (site->mutations[m].node > top_mut_node) {
+-                top_mut_node = site->mutations[m].node;
+-            }
+         }
+     }
+ 
+-    ret = tsk_bit_array_init(&mut_samples, num_samples, num_mutations);
++    ret = tsk_tree_preorder(self, nodes, &num_nodes);
+     if (ret != 0) {
+         goto out;
+     }
+-    ret = tsk_bit_array_init(&node_paths, num_nodes, num_mutations);
++    ret = tsk_bit_array_init(&mut_samples, num_samples, num_mutations);
+     if (ret != 0) {
+         goto out;
+     }
+-
+-    stack = tsk_malloc(num_nodes * sizeof(*stack));
+-    if (stack == NULL) {
+-        ret = TSK_ERR_NO_MEMORY;
++    ret = tsk_bit_array_init(&node_paths, tsk_treeseq_get_num_nodes(ts), num_mutations);
++    if (ret != 0) {
+         goto out;
+     }
+ 
+-    stack_top = 0;
+-    stack[stack_top] = parent[top_mut_node];
+-
+     // Current position minus num ancestral alleles to this point, if there are any sites
+-    mut_offset = num_sites
++    mut_offset = num_tree_sites
+                      ? (site_offsets[tree_sites[0].id] - (tsk_size_t) tree_sites[0].id)
+                      : 0;
+ 
+-    // Traverse the current tree (postorder), tracking which samples are under each
+-    // mutation
+-    while (stack_top >= 0) {
+-        node = stack[stack_top];
+-        stack_top--;
++    // Traverse the current tree, tracking which samples are under each mutation
++    for (i = 0; i < num_nodes; i++) {
++        node = nodes[i];
+         for (m = 0; m < num_mutations; m++) {
+             tsk_bit_array_get_row(&node_paths, m, &path);
+             tsk_bit_array_get_row(&mut_samples, m, &mut_samples_row);
+@@ -2296,20 +2295,14 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
+                 }
+             }
+         }
+-        u = right_child[node];
+-        while (u != TSK_NULL) {
+-            stack_top++;
+-            stack[stack_top] = u;
+-            u = left_sib[u];
+-        }
+     }
+ 
+     mut_samples_offset = 0;
+-    for (s = 0; s < num_sites; s++) {
++    for (s = 0; s < num_tree_sites; s++) {
+         site = &tree_sites[s];
+ 
+         tsk_bit_array_get_row(&mut_samples, mut_samples_offset, &mut_samples_row);
+-        mut_samples_offset += self->site_mutations_length[site->id];
++        mut_samples_offset += site_mutations_length[site->id];
+ 
+         tsk_bit_array_get_row(allele_samples, site_offsets[site->id], &out_row);
+         get_allele_samples(site, &mut_samples_row, &out_row, &(*num_alleles)[site->id]);
+@@ -2317,7 +2310,7 @@ get_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t tree_index,
+ out:
+     tsk_bit_array_free(&mut_samples);
+     tsk_bit_array_free(&node_paths);
+-    tsk_safe_free(stack);
++    tsk_safe_free(nodes);
+ 
+     return ret;
+ }
+@@ -2498,109 +2491,23 @@ get_all_mutation_samples(const tsk_treeseq_t *self, const tsk_size_t *site_offse
+     tsk_size_t *num_alleles, tsk_bit_array_t *allele_samples)
+ {
+     int ret = 0;
+-    const tsk_size_t num_nodes = self->tables->nodes.num_rows;
+-    const tsk_id_t num_edges = (tsk_id_t) self->tables->edges.num_rows;
+-    const tsk_id_t *restrict edges_in = self->tables->indexes.edge_insertion_order;
+-    const tsk_id_t *restrict edges_out = self->tables->indexes.edge_removal_order;
+-    const double *restrict edge_left = self->tables->edges.left;
+-    const double *restrict edge_right = self->tables->edges.right;
+-    const tsk_id_t *restrict edge_parent = self->tables->edges.parent;
+-    const tsk_id_t *restrict edge_child = self->tables->edges.child;
+-    const double sequence_length = self->tables->sequence_length;
+-
+-    tsk_id_t *restrict parent = tsk_malloc(num_nodes * sizeof(*parent));
+-    tsk_id_t *restrict right_child = tsk_malloc(num_nodes * sizeof(*right_child));
+-    tsk_id_t *restrict left_sib = tsk_malloc(num_nodes * sizeof(*left_sib));
+-    tsk_id_t *restrict right_sib = tsk_malloc(num_nodes * sizeof(*right_sib));
++    tsk_tree_t tree;
+ 
+-    if (parent == NULL || right_child == NULL || left_sib == NULL || right_sib == NULL) {
+-        ret = TSK_ERR_NO_MEMORY;
++    ret = tsk_tree_init(&tree, self, TSK_TS_INIT_BUILD_INDEXES);
++    if (ret != 0) {
+         goto out;
+     }
+ 
+-    tsk_memset(parent, 0xff, num_nodes * sizeof(*parent));
+-    tsk_memset(right_child, 0xff, num_nodes * sizeof(*right_child));
+-    tsk_memset(left_sib, 0xff, num_nodes * sizeof(*left_sib));
+-    tsk_memset(right_sib, 0xff, num_nodes * sizeof(*right_sib));
+-
+-    tsk_size_t tree_index;
+-    double t_left, t_right;
+-    tsk_id_t tj, tk, h, u, v, c;
+-
+-    tj = 0;
+-    tk = 0;
+-    t_left = 0;
+-    tree_index = 0;
+-    while (tj < num_edges || t_left < sequence_length) {
+-        while (tk < num_edges && edge_right[edges_out[tk]] == t_left) {
+-            h = edges_out[tk];
+-            tk++;
+-            u = edge_child[h];
+-            v = edge_parent[h];
+-
+-            if (left_sib[u] != TSK_NULL) {
+-                right_sib[left_sib[u]] = right_sib[u];
+-            }
+-
+-            if (right_sib[u] == TSK_NULL) {
+-                right_child[v] = left_sib[u];
+-            } else {
+-                left_sib[right_sib[u]] = left_sib[u];
+-            }
+-
+-            left_sib[u] = TSK_NULL;
+-            right_sib[u] = TSK_NULL;
+-            parent[u] = TSK_NULL;
+-        }
+-        while (tj < num_edges && edge_left[edges_in[tj]] == t_left) {
+-            h = edges_in[tj];
+-            tj++;
+-            u = edge_child[h];
+-            v = edge_parent[h];
+-            parent[u] = v;
+-
+-            c = right_child[v];
+-            if (c == TSK_NULL) {
+-                left_sib[u] = TSK_NULL;
+-                right_sib[u] = TSK_NULL;
+-            } else {
+-                right_sib[c] = u;
+-                left_sib[u] = c;
+-                right_sib[u] = TSK_NULL;
+-            }
+-
+-            right_child[v] = u;
+-        }
+-        t_right = sequence_length;
+-        if (tj < num_edges) {
+-            t_right = TSK_MIN(t_right, edge_left[edges_in[tj]]);
+-        }
+-        if (tk < num_edges) {
+-            t_right = TSK_MIN(t_right, edge_right[edges_out[tk]]);
+-        }
+-
+-        ret = get_mutation_samples(self, tree_index, right_child, left_sib, parent,
+-            site_offsets, allele_samples, &num_alleles);
++    for (ret = tsk_tree_first(&tree); ret == TSK_TREE_OK; ret = tsk_tree_next(&tree)) {
++        ret = get_mutation_samples(&tree, site_offsets, allele_samples, &num_alleles);
+         if (ret != 0) {
+             goto out;
+         }
+-
+-        tree_index++;
+-        t_left = t_right;
+     }
++    // if adding code below, check ret before continuing
++
+ out:
+-    if (parent != NULL) {
+-        free(parent);
+-    }
+-    if (right_child != NULL) {
+-        free(right_child);
+-    }
+-    if (left_sib != NULL) {
+-        free(left_sib);
+-    }
+-    if (right_sib != NULL) {
+-        free(right_sib);
+-    }
++    tsk_tree_free(&tree);
+     return ret;
+ }
+ 
