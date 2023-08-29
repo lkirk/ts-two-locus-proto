@@ -5,7 +5,8 @@ source_hash = 1dd89a257d4529e094df48b6d1e7cb4ece96c928b2919547a60124b9ccf6021a
 source_filename = tskit-1.1.2.tar.xz
 # generate these files with:
 # git diff be0a18d..7f5faab c/ | sed -e's|a/c|a|' -e's|b/c|b|' > diff_be0a18d_7f5faab.patch
-diff_files = tskit/diff_fd72573_be0a18d.patch, tskit/diff_be0a18d_cd18eda.patch, tskit/diff_core_speedup.patch, tskit/diff_proposed_tree_changes.patch, tskit/diff_simplify_traversal.patch
+# diff_files = tskit/diff_fd72573_be0a18d.patch, tskit/diff_be0a18d_cd18eda.patch, tskit/diff_core_speedup.patch, tskit/diff_proposed_tree_changes.patch, tskit/diff_simplify_traversal.patch
+diff_files = tskit/fd72573_b3a005b.patch
 #, tskit/core_optimization.patch
 
 [provide]
